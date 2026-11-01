@@ -1,0 +1,8 @@
+{
+  "role": {
+    "includeGlobalRules": false,
+    "overrideRoleIds": [
+      "active"
+    ]
+  }
+}
