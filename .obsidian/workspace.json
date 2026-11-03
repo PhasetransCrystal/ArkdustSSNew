@@ -1,0 +1,220 @@
+{
+  "main": {
+    "id": "cbc2f4c82af9eab4",
+    "type": "split",
+    "children": [
+      {
+        "id": "898697156a32c7fb",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "fcd628e70d63c1a6",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "关系图谱"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "ff658ff03d3c5ac5",
+    "type": "split",
+    "children": [
+      {
+        "id": "cbc5961ba81f6b32",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a3b6408ed12c3a1f",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "0383c3f2670d0835",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "c94731fd1047e88d",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "72cdb663d18c350a",
+    "type": "split",
+    "children": [
+      {
+        "id": "f4278a4dbd281abf",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ab005272aa240086",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "设定/主旋律/休谟与深度/源域性与拓扑休谟概论.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "反向链接"
+            }
+          },
+          {
+            "id": "114246784b653ac2",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "设定/主旋律/休谟与深度/源域性与拓扑休谟概论.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "出链"
+            }
+          },
+          {
+            "id": "ee8fe8d9bb8dc8c4",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "73155b8a49624eb2",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "2c95766b25990cec",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "设定/主旋律/休谟与深度/源域性与拓扑休谟概论.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "fcd628e70d63c1a6",
+  "lastOpenFiles": [
+    "其它/待归档/源石生理学.md~",
+    "设定/主旋律/休谟与深度/源域性与拓扑休谟概论.md~",
+    "设定/主旋律/休谟与深度/异常学.md~",
+    "设定/主旋律/休谟与深度/超域.md",
+    "README.md~",
+    "Exile.md",
+    "未命名.canvas",
+    "设定/演绎者.md~",
+    "设定/内我/灵魂-再旅者.md~",
+    "设定/同一性.md",
+    "设定/主旋律/同一性.md",
+    "设定/演绎者.md",
+    "设定/主旋律/演绎者.md",
+    "骨架-Exile.md~",
+    "设定/主旋律/演绎者/演绎者.md",
+    "设定/主旋律/演绎者/演绎者",
+    "设定/主旋律/演绎者",
+    "设定/内我/同一性.md",
+    "设定/内我/内我.md",
+    "README.md",
+    "其它/待归档/改进点注入.md~",
+    "设定/主旋律/六权柄/权能持存.md",
+    "设定/主旋律/六权柄/余荫.md",
+    "设定/主旋律/六权柄",
+    "设定/内我/灵魂-再旅者.md",
+    "骨架-Exile.md",
+    "设定/主旋律/休谟与深度/源域性与拓扑休谟概论.md",
+    "其它/待归档/源石生理学.md",
+    "设定/主旋律/休谟与深度/异常学.md",
+    "其它/待归档/异常学.md"
+  ]
+}
