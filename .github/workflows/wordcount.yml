@@ -1,0 +1,59 @@
+name: Document word count
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wordcount-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  count-and-publish:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONUTF8: "1"
+      SOURCE_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Test counter and isolated publication
+        run: python -m unittest discover -s tools/wordcount -p 'test_*.py' -v
+
+      - name: Generate statistics
+        id: count
+        run: python tools/wordcount/count.py
+
+      - name: Add readable job summary
+        run: |
+          python -c "import os; from pathlib import Path; Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(Path('tools/wordcount/output/tree.md').read_text(encoding='utf-8'), encoding='utf-8')"
+
+      - name: Keep downloadable report
+        uses: actions/upload-artifact@v4
+        with:
+          name: wordcount-${{ github.sha }}
+          path: tools/wordcount/output/
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Publish to statistics branch only
+        run: python tools/wordcount/publish.py --source-branch "$env:SOURCE_BRANCH"

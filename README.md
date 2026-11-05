@@ -2,6 +2,13 @@
 
 舟尘世界观设定仓库，包含作者的各种神秘小巧思。可能美术资产，篇章网页等内容后续也会放在这。
 
+[![设定与剧情总字数（不含空白）](https://raw.githubusercontent.com/PhasetransCrystal/ArkdustSSNew/wordcount-stats/badge.svg)](https://github.com/PhasetransCrystal/ArkdustSSNew/blob/wordcount-stats/tree.md)
+
+统计范围：`Exile.md`、`设定/`、`剧情/` 下已跟踪的 Markdown 文件；不计空格、换行等空白，保留 Markdown 语法字符。
+[目录字数与篇数明细](https://github.com/PhasetransCrystal/ArkdustSSNew/blob/wordcount-stats/tree.md) · [统计器配置与使用说明](tools/wordcount/README.md)
+
+<!-- 首次推送并成功运行 Document word count 工作流后，徽章和明细链接才会生效。 -->
+
 ## [根目录(Exile)](Exile.md)
 
 核心设定，即流放者系统。该设定(待拆分)的边界是规定时间，空间的独立边界，以及它们之间的交叉关系。

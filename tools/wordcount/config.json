@@ -1,0 +1,9 @@
+{
+  "roots": [
+    { "path": "Exile.md", "type": "file" },
+    { "path": "设定", "type": "directory" },
+    { "path": "剧情", "type": "directory" }
+  ],
+  "include": ["**/*.md"],
+  "exclude": []
+}
