@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "counter_version": 1,
+  "source_commit": "15b04b05e57e227ee0f6f999af7e6f20a8e30e06",
+  "source_mode": "tracked-working-tree",
+  "working_tree_modified": false,
+  "counting_policy": {
+    "characters": "Unicode code points excluding all str.isspace() whitespace; Markdown syntax retained",
+    "raw_characters": "Unicode code points including whitespace; line endings normalized to LF",
+    "encoding": "UTF-8; optional BOM ignored; invalid input fails",
+    "files": "One matching tracked file is one document, including empty files"
+  },
+  "scope": {
+    "roots": [
+      {
+        "path": "Exile.md",
+        "type": "file"
+      },
+      {
+        "path": "设定",
+        "type": "directory"
+      },
+      {
+        "path": "剧情",
+        "type": "directory"
+      }
+    ],
+    "include": [
+      "**/*.md"
+    ],
+    "exclude": []
+  },
+  "totals": {
+    "characters": 53365,
+    "raw_characters": 57366,
+    "files": 9
+  },
+  "tree": {
+    "type": "directory",
+    "name": "世界观文档",
+    "path": "",
+    "characters": 53365,
+    "raw_characters": 57366,
+    "files": 9,
+    "children": [
+      {
+        "type": "directory",
+        "name": "剧情",
+        "path": "剧情",
+        "characters": 0,
+        "raw_characters": 0,
+        "files": 0,
+        "children": []
+      },
+      {
+        "type": "directory",
+        "name": "设定",
+        "path": "设定",
+        "characters": 45492,
+        "raw_characters": 49091,
+        "files": 8,
+        "children": [
+          {
+            "type": "directory",
+            "name": "主旋律",
+            "path": "设定/主旋律",
+            "characters": 24381,
+            "raw_characters": 26239,
+            "files": 6,
+            "children": [
+              {
+                "type": "directory",
+                "name": "休谟与深度",
+                "path": "设定/主旋律/休谟与深度",
+                "characters": 20371,
+                "raw_characters": 22021,
+                "files": 4,
+                "children": [
+                  {
+                    "type": "file",
+                    "name": "异常学.md",
+                    "path": "设定/主旋律/休谟与深度/异常学.md",
+                    "characters": 3696,
+                    "raw_characters": 3899,
+                    "files": 1,
+                    "sha256": "c5eb24cf083cab7bc4d0f13f73d7268f6e5b9e96f22ca7b4c37c1b1dc736e814"
+                  },
+                  {
+                    "type": "file",
+                    "name": "本体学概论：休谟，深度，现实.md",
+                    "path": "设定/主旋律/休谟与深度/本体学概论：休谟，深度，现实.md",
+                    "characters": 13811,
+                    "raw_characters": 15100,
+                    "files": 1,
+                    "sha256": "2d83dc5a44b317a1b9878fccb5d79cc5a6b833948c0fecd977b3ed3f9fe4d2ff"
+                  },
+                  {
+                    "type": "file",
+                    "name": "源石物理学.md",
+                    "path": "设定/主旋律/休谟与深度/源石物理学.md",
+                    "characters": 47,
+                    "raw_characters": 52,
+                    "files": 1,
+                    "sha256": "3642793525e32571b28791996ecc353b9444f5f725c07f429f8729059269de26"
+                  },
+                  {
+                    "type": "file",
+                    "name": "超域物理学.md",
+                    "path": "设定/主旋律/休谟与深度/超域物理学.md",
+                    "characters": 2817,
+                    "raw_characters": 2970,
+                    "files": 1,
+                    "sha256": "ffaf14993e4c2791ef69bfd0e042e546cb314a6276314ecbe8e3f8790bfc93a9"
+                  }
+                ]
+              },
+              {
+                "type": "directory",
+                "name": "六权柄",
+                "path": "设定/主旋律/六权柄",
+                "characters": 4010,
+                "raw_characters": 4218,
+                "files": 2,
+                "children": [
+                  {
+                    "type": "file",
+                    "name": "余荫.md",
+                    "path": "设定/主旋律/六权柄/余荫.md",
+                    "characters": 2376,
+                    "raw_characters": 2472,
+                    "files": 1,
+                    "sha256": "d8bc9fa37b3283577df9412501fe01c6a6dbae0c23a586de4657245d64bc2dbd"
+                  },
+                  {
+                    "type": "file",
+                    "name": "权能持存.md",
+                    "path": "设定/主旋律/六权柄/权能持存.md",
+                    "characters": 1634,
+                    "raw_characters": 1746,
+                    "files": 1,
+                    "sha256": "81f023e2823d9d20f146a2256958ccd82eeb89a2160a0dccc83d3127d3b89828"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "directory",
+            "name": "内我",
+            "path": "设定/内我",
+            "characters": 19642,
+            "raw_characters": 21210,
+            "files": 1,
+            "children": [
+              {
+                "type": "file",
+                "name": "灵魂-再旅者.md",
+                "path": "设定/内我/灵魂-再旅者.md",
+                "characters": 19642,
+                "raw_characters": 21210,
+                "files": 1,
+                "sha256": "9645ede8447dc17f0d3bdd0c0305b761132792725600d417fcfcdfc062964bba"
+              }
+            ]
+          },
+          {
+            "type": "file",
+            "name": "演绎者.md",
+            "path": "设定/演绎者.md",
+            "characters": 1469,
+            "raw_characters": 1642,
+            "files": 1,
+            "sha256": "7477314552fb752fb5fbbb9018c8ea2a20e6a90d6480173f18a697140ee03bdb"
+          }
+        ]
+      },
+      {
+        "type": "file",
+        "name": "Exile.md",
+        "path": "Exile.md",
+        "characters": 7873,
+        "raw_characters": 8275,
+        "files": 1,
+        "sha256": "636d7fd61383c39092161fd3115e71be8b63442e24b14e1a8577715a27da5589"
+      }
+    ]
+  }
+}
