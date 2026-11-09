@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>休谟制图器 · 离线工作台</title>
+<style>
+:root{color-scheme:light;--ink:#24182e;--purple:#3A1466;--soft:#B49CE0;--line:#ded8e5}*{box-sizing:border-box}body{margin:0;background:#f4f1f7;color:var(--ink);font:14px/1.55 system-ui,"Microsoft YaHei",sans-serif}header{padding:20px 28px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:20px;flex-wrap:wrap}h1{font-size:23px;margin:0}header p{margin:0;color:#756582}main{display:grid;grid-template-columns:360px minmax(0,1fr);gap:20px;padding:20px;max-width:2000px;margin:auto}aside{min-width:0}section,.card{background:white;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}h2{font-size:15px;margin:0 0 12px}h3{margin:0;font-size:14px}label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#62566c}input,select,button{font:inherit}input:not([type=checkbox]):not([type=color]),select{width:100%;min-width:0;padding:7px;border:1px solid #cfc5da;border-radius:5px;background:white;color:#24182e}input[type=color]{height:32px;width:100%;padding:2px;border:1px solid var(--line);background:white}input[type=checkbox]{accent-color:var(--purple)}textarea{width:100%;min-width:0;padding:7px;border:1px solid #cfc5da;border-radius:5px;background:white;color:#24182e;font:inherit;resize:vertical}button{padding:7px 12px;border:1px solid #cdc1da;border-radius:6px;background:#f8f5fb;color:var(--purple);cursor:pointer}button:hover{background:#eee6f7}button:disabled{opacity:.45;cursor:not-allowed}button.primary{background:var(--purple);color:white;border-color:var(--purple)}.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.row.between{justify-content:space-between}.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.check{display:inline-flex;flex-direction:row;align-items:center;gap:5px}.muted,small{color:#80718c;font-size:12px}.group{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.style-fields{display:grid;grid-template-columns:56px 65px 1fr;gap:7px;align-items:end;margin:7px 0 12px}.fill-fields{display:grid;grid-template-columns:56px 72px 1fr 1fr;gap:7px;align-items:end;margin:7px 0 12px}.metrics{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--purple);overflow-wrap:anywhere}.anno-pick{outline:2px solid var(--purple);background:#efe7f8}.stage{min-width:0}.sticky{position:sticky;top:16px}.preview{overflow:auto;background:#e8e3ed;border-radius:10px;padding:18px}.preview svg{display:block;width:auto;height:auto;max-width:100%;max-height:calc(100vh - 260px);margin:0 auto;background:white;box-shadow:0 5px 22px #23132f16}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.toolbar select{width:auto}#status{white-space:pre-wrap;overflow-wrap:anywhere;min-height:24px;padding:9px 12px;border-radius:6px;background:#eee8f5;color:var(--purple)}#status.error{background:#fff0f0;color:#a01c32}#storageStatus{display:block;margin-top:7px}.note{border-left:3px solid var(--soft);padding-left:10px;margin-top:15px}details summary{cursor:pointer;color:var(--purple)}:focus-visible{outline:3px solid #b49ce0;outline-offset:2px}@media(max-width:1000px){main{grid-template-columns:310px minmax(0,1fr);padding:12px;gap:12px}}@media(max-width:760px){main{display:flex;flex-direction:column}.stage{order:-1}.sticky{position:static}header{padding:16px}.preview{padding:8px}.preview svg{max-height:none}}
+</style>
+</head>
+<body>
+<header><h1>休谟制图器</h1><p>离线工作台 / 单一 SVG 渲染源 / 无外部依赖</p></header>
+<main>
+<aside id="controls">
+<section><h2>画面与坐标</h2>
+<div class="fields"><label>排版模式<select id="layout"><option value="normal">普通图</option><option value="dual">双图 · 线性 + 对数</option><option value="small">小图 · 无文字竖排</option></select></label><label>小图边长 / px（1:1）<input id="panelHeight" type="number" min="120" max="1000" step="10"></label></div>
+<p class="muted">双图在同一大图中左右并排：左侧是线性表征量 y，右侧是表征级量 ln(y/100)，横轴相同。小图按可见谱组竖排，不显示文字；切回后保留原设置。</p>
+<label>主标题<input id="title" maxlength="80"></label>
+<label style="margin-top:10px">装饰副标题<input id="subtitle" maxlength="100"></label>
+<div class="fields"><label>绘图区宽 / px（单个坐标轴）<input id="width" type="number" min="300" max="2400" step="10"></label><label>绘图区高 / px（单个坐标轴）<input id="height" type="number" min="200" max="1800" step="10"></label></div>
+<label>纵轴模式<select id="mode"><option value="linear">线性 · 表征量 y</option><option value="log">表征级量ln(y/100)</option></select></label>
+<div class="fields"><label>横轴最小 u<input id="xMin" type="number" step="any"></label><label>横轴最大 u<input id="xMax" type="number" step="any"></label><label><span id="yMinLabel">纵轴最小值</span><input id="yMin" type="number" step="any"></label><label><span id="yMaxLabel">纵轴最大值</span><input id="yMax" type="number" step="any"></label></div>
+<div id="dualLogRange" class="fields" hidden><label>右图纵轴最小 ln(y/100)<input id="logYMin" type="number" step="any"></label><label>右图纵轴最大 ln(y/100)<input id="logYMax" type="number" step="any"></label></div>
+<p id="axisHint" class="muted">纵轴范围以当前模式的数值为准；切换模式会换为常用范围。可用“适配可见峰高”重设纵轴。</p>
+<button id="fitY" type="button">适配可见峰高</button>
+<div class="row" style="margin-top:12px"><label class="check"><input id="grid" type="checkbox">细灰网格</label><label class="check"><input id="legend" type="checkbox">图例</label><label class="check"><input id="peaks" type="checkbox">峰点</label><label class="check"><input id="baseline" type="checkbox">基准线 y=100</label></div>
+<div class="fields"><label>图例字号 / px<input id="legendFontSize" type="number" min="8" max="32" step="1"></label></div>
+</section>
+<section><h2>谱组</h2><div class="row"><select id="preset" aria-label="添加预设" style="flex:1"><option value="baseline">基准现实</option><option value="originium">源石 · Δ=0.8</option><option value="beyond">超域 · Δ=−0.8</option><option value="red">红现实</option><option value="focus">聚焦</option></select><button id="addGroup" type="button">＋ 添加组</button></div><div id="groups"></div></section>
+<section><h2>自定义一次函数界线</h2><p class="muted">输入 y=2x+3、y=-x、y=100 或 y=0.5*x-2。x 为实际谱坐标 u；y 为当前显示纵坐标，对数轴上直接表示 ln(y/100)，不再取对数。双图中同一表达式分别按左右轴解释。x=1 这类竖直线也可用。仅支持十进制系数，最多 20 条。界线和谱组的分布／轨道都可开启一侧填色：选下侧或上侧（竖直线为左侧或右侧），花纹可选纯色、斜线、网格或点阵，不透明度 0–1。</p><button id="addBoundary" type="button">＋ 添加界线</button><div id="boundaries"></div></section>
+<section><h2>标注</h2><p class="muted">普通图和双图可绘制，小图隐藏。点不必在曲线上；图中选点靠近曲线顶点时自动吸附（按住 Alt 不吸附）。引出线只分向左或向右，统一延伸到绘图区外再写字；主副文字均可多行，字号分别设置，新标注默认主文字 32px、副文字 16px。双图需选择所属图。画布会按标题、图例和引出文字自动加边。最多 30 条。</p><button id="addAnnotation" type="button">＋ 添加标注</button><div id="annotations"></div></section>
+<section><h2>配置与本地保存</h2><div class="row"><button id="exportJSON" type="button">导出 JSON</button><button id="importJSON" type="button">导入 JSON</button><input id="jsonFile" type="file" accept=".json,application/json" hidden></div><label class="check" style="margin-top:12px"><input id="remember" type="checkbox">在此浏览器中记住有效配置（可选）</label><small id="storageStatus" role="status">默认不写入本地存储；JSON 文件是可靠的备份方式。</small><button id="reset" type="button" style="margin-top:12px">恢复默认画面</button></section>
+</aside>
+<div class="stage"><div class="sticky">
+<div id="status" role="status" aria-live="polite">正在初始化…</div>
+<div class="toolbar"><button id="exportSVG" class="primary" type="button">导出 SVG</button><button id="exportPNG" type="button">导出 PNG</button><select id="pngScale" aria-label="PNG导出倍率"><option value="1">PNG · 1×</option><option value="2">PNG · 2×</option><option value="3">PNG · 3×</option></select><span class="muted">导出仅含图；不含工具界面</span></div>
+<div id="preview" class="preview" aria-label="休谟分布图预览"></div>
+<div class="card" style="margin-top:16px"><details><summary>数学合同与阅读提示</summary><p>σ₀ = 1/√(2π)；p = Lf + atanh(Δ)。Ih = (σ/σ₀)Yf exp(p) 是采纳的现象学定义，不是严格逐频加权积分 ∫y exp(x)dx。</p><p>本征轨道使用实际谱坐标 u：Yorbit(u) = Yf exp(p−u)，经过本组峰顶 (p,Yf)，不再叠加 Δ 位移。</p><p>σ 是偏态宽度尺度，不一定是统计标准差。要求 −1&lt;Δ&lt;1、σ&gt;0、Yf&gt;0。Δ=±1 只是极限，不能直接绘制。</p><p>对数轴是<strong>表征级量ln(y/100)</strong>，不等同于正文中的 ln(Ih/100)。数值超出浮点可表示范围的 Ih 以科学计数表达展示；极窄峰仍显式采样峰位，可能呈现亚像素尖线。</p></details></div>
+</div></div>
+</main>
+<script>
+'use strict';
+(() => {
+  const SIGMA0 = 1 / Math.sqrt(2 * Math.PI), LOG100 = Math.log(100);
+  const STORAGE_KEY = 'arkdust.hume.plot.v1', MAX_GROUPS = 20, MAX_ANNOTATIONS = 30;
+  const $ = id => document.getElementById(id);
+  const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const FILL_PATTERNS=['solid','slash','backslash','cross','grid','dots'];
+  // 填色默认关闭、纯色。side 对曲线和斜线是下/上，对竖直线 x=常数 等效为左/右。
+  const fillDefault = (color='#3A1466') => ({show:false,color,opacity:.25,side:'below',pattern:'solid'});
+  const style = (color, dash = 'solid') => ({show:true,color,width:2.5,dash,fill:fillDefault(color)});
+  function preset(key) {
+    const g = {name:'基准现实',Lf:0,Yf:100,Delta:0,sigma:SIGMA0,distribution:style('#3A1466'),orbit:style('#B49CE0','dash')};
+    if (key === 'originium') Object.assign(g,{name:'源石',Delta:.8});
+    if (key === 'beyond') Object.assign(g,{name:'超域',Delta:-.8});
+if (key === 'red') Object.assign(g,{name:'红现实',Lf:0,Yf:3.2});
+    if (key === 'focus') Object.assign(g,{name:'聚焦',sigma:SIGMA0/4,Yf:400});
+    return g;
+  }
+  function defaults() { return {version:6,legendFontSize:16,layout:'normal',panelHeight:240,boundaries:[],annotations:[],title:'基准现实',subtitle:'HUME SPECTRUM · REALITY REFERENCE',width:960,height:480,mode:'linear',xMin:-3,xMax:3,yMin:0,yMax:160,logYMin:-6,logYMax:2,grid:true,legend:true,peaks:true,baseline:true,groups:[preset('baseline')]}; }
+  const V1_KEYS=['version','title','subtitle','width','height','mode','xMin','xMax','yMin','yMax','grid','legend','peaks','baseline','groups'];
+  const V2_KEYS=[...V1_KEYS,'layout','panelHeight','boundaries'];
+  const V3_KEYS=[...V2_KEYS,'annotations'];
+  const V4_KEYS=[...V3_KEYS,'logYMin','logYMax'];
+  const V5_KEYS=[...V4_KEYS,'legendFontSize'];
+  const V6_KEYS=V5_KEYS;
+  const ANNOTATION_KEYS=['show','x','y','side','radius','fontSize','secondaryFontSize','primary','secondary','panel'];
+  // 双图下新增标注默认落在左图；对数单图则落在对数坐标。
+  function annotationDefaults(mode,layout) { const log=mode==='log'&&layout!=='dual'; return {show:true,x:0,y:log?0:100,side:'right',radius:3.5,fontSize:32,secondaryFontSize:16,primary:'',secondary:'',panel:log?'log':'linear'}; }
+  // 旧配置没有独立对数范围：对数模式沿用当时的纵轴，否则给常用范围。
+  // 旧标注的 dx/dy/length 不再使用：引出线统一延伸到绘图区外。
+  // 旧配置没有图例字号，迁移时取新默认值 16。
+  // 旧配置没有填色，迁移时默认关闭。
+  function withFill(c) {
+    return {...c,version:6,
+      boundaries:Array.isArray(c.boundaries)?c.boundaries.map(line=>withStyleFill(line,'style')):c.boundaries,
+      groups:Array.isArray(c.groups)?c.groups.map(g=>withStyleFill(withStyleFill(g,'distribution'),'orbit')):c.groups};
+  }
+  // 结构不对的旧数据原样交给 validate 拒绝，避免这里抛出难懂的 TypeError。
+  function withStyleFill(o,k) {
+    const s=o&&typeof o==='object'?o[k]:undefined;
+    return s&&typeof s==='object'&&!Array.isArray(s)?{...o,[k]:{...s,fill:fillDefault(/^#[0-9a-f]{6}$/i.test(s.color)?s.color:undefined)}}:o;
+  }
+  function withDualRanges(c) { const log=c.mode==='log'; return withFill({...c,legendFontSize:16,logYMin:log?c.yMin:-6,logYMax:log?c.yMax:2,annotations:(c.annotations||[]).map(({dx,dy,length,...a})=>({...a,secondaryFontSize:a.secondaryFontSize||a.fontSize||13,panel:a.panel||(log?'log':'linear')}))}); }
+  function migrate(c) {
+    if(c && c.version===1) { shape(c,V1_KEYS,'旧配置'); return validate(withDualRanges({...c,layout:'normal',panelHeight:240,boundaries:[],annotations:[]})); }
+    if(c && c.version===2) { shape(c,V2_KEYS,'旧配置'); return validate(withDualRanges({...c,annotations:[]})); }
+    if(c && c.version===3) { shape(c,V3_KEYS,'旧配置'); return validate(withDualRanges(c)); }
+    if(c && c.version===4) { shape(c,V4_KEYS,'旧配置'); return validate(withFill({...c,legendFontSize:16})); }
+    if(c && c.version===5) { shape(c,V5_KEYS,'旧配置'); return validate(withFill(c)); }
+    return validate(c);
+  }
+  function parseLine(expression) {
+    text(expression,'界线表达式',100);
+    const s=expression.replace(/\s/g,'').replace(/−/g,'-');
+    const constant=/^y=([+-]?(?:\d+(?:\.\d*)?|\.\d+))$/i.exec(s);
+    const linear=/^y=([+-]?)(?:(\d+(?:\.\d*)?|\.\d+)\*?)?x(?:([+-])((?:\d+(?:\.\d*)?|\.\d+)))?$/i.exec(s);
+    // 竖直线 x=常数：斜率为无穷，填充侧等效为左/右。
+    const vertical=/^x=([+-]?(?:\d+(?:\.\d*)?|\.\d+))$/i.exec(s);
+    if(!constant && !linear && !vertical) fail('界线格式无效：仅支持 y=ax+b 或 x=常数，例如 y=-x、y=0.5*x-2 或 x=1');
+    if(vertical){const v=Number(vertical[1]);number(v,'竖直线位置',-1e12,1e12);return {a:Infinity,b:v,vertical:true};}
+    const a=constant?0:(linear[1]==='-'?-1:1)*(linear[2]===undefined?1:Number(linear[2]));
+    const b=constant?Number(constant[1]):(linear[3]==='-'?-1:1)*Number(linear[4]||0);
+    number(a,'界线斜率',-1e12,1e12);number(b,'界线截距',-1e12,1e12);
+    return {a,b,vertical:false};
+  }
+  function dimensions(c) { if(c.layout==='small'){const n=c.groups.filter(g=>g.distribution.show||g.orbit.show).length;return {width:c.panelHeight,height:Math.max(1,n)*c.panelHeight+(Math.max(1,n)+1)*16};} const L=layoutOf(c); return {width:L.width,height:L.height}; }
+  function boundaryPaths(c,xMap,yMap) {
+    return c.boundaries.filter(line=>line.style.show).map(line=>{
+      const {a,b,vertical}=parseLine(line.expression);let lo=c.xMin,hi=c.xMax;
+      if(vertical){if(b<c.xMin||b>c.xMax)return '';return '<path data-kind="boundary" d="M '+xMap(b)+' '+yMap(c.yMin)+' L '+xMap(b)+' '+yMap(c.yMax)+'" fill="none" '+lineStyle(line.style)+'/>';}
+      if(a===0){if(b<c.yMin||b>c.yMax)return '';}
+      else {const u=(c.yMin-b)/a,v=(c.yMax-b)/a;lo=Math.max(lo,Math.min(u,v));hi=Math.min(hi,Math.max(u,v));if(lo>hi)return '';}
+      const y=x=>Math.max(c.yMin,Math.min(c.yMax,a*x+b));
+      return '<path data-kind="boundary" d="M '+xMap(lo)+' '+yMap(y(lo))+' L '+xMap(hi)+' '+yMap(y(hi))+'" fill="none" '+lineStyle(line.style)+'/>';
+    }).join('');
+  }
+  // 界线填色：用半平面裁剪绘图区矩形（数据坐标），得到精确多边形，不产生超大像素坐标。
+  // below 保留 y≤ax+b 一侧；竖直线 x=v 时 below 等效左侧 x≤v，above 等效右侧。
+  function halfPlane(c,line,side) {
+    const f=([x,y])=>(line.vertical?x-line.b:y-(line.a*x+line.b))*(side==='below'?1:-1);
+    const rect=[[c.xMin,c.yMin],[c.xMax,c.yMin],[c.xMax,c.yMax],[c.xMin,c.yMax]], out=[];
+    rect.forEach((p,i)=>{
+      const q=rect[(i+1)%4], fp=f(p), fq=f(q);
+      if(fp<=0)out.push(p);
+      if((fp<0&&fq>0)||(fp>0&&fq<0)){const t=fp/(fp-fq);out.push([p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t]);}
+    });
+    return out;
+  }
+  function boundaryFills(c,xMap,yMap,prefix) {
+    return c.boundaries.map((line,i)=>({line,i})).filter(({line})=>line.style.show&&line.style.fill.show).map(({line,i})=>{
+      const poly=halfPlane(c,parseLine(line.expression),line.style.fill.side);
+      if(poly.length<3)return '';
+      return fillShape(line.style.fill,poly.map((p,n)=>(n?'L ':'M ')+xMap(p[0])+' '+yMap(p[1])).join(' ')+' Z',prefix+'b'+i,'data-boundary="'+i+'"');
+    }).join('');
+  }
+  // 花纹按 10px 平铺，userSpaceOnUse 使各区域花纹对齐；透明度作用在整个填充区域上。
+  function fillPattern(id,f) {
+    const s='fill="none" stroke="'+esc(f.color)+'" stroke-width="1.5"', head=(t)=>'<pattern id="'+id+'" patternUnits="userSpaceOnUse" width="10" height="10"'+(t?' patternTransform="rotate('+t+')"':'')+'>';
+    if(f.pattern==='slash')return head(45)+'<path d="M 5 0 V 10" '+s+'/></pattern>';
+    if(f.pattern==='backslash')return head(-45)+'<path d="M 5 0 V 10" '+s+'/></pattern>';
+    if(f.pattern==='cross')return head(45)+'<path d="M 5 0 V 10 M 0 5 H 10" '+s+'/></pattern>';
+    if(f.pattern==='grid')return head(0)+'<path d="M 5 0 V 10 M 0 5 H 10" '+s+'/></pattern>';
+    return head(0)+'<circle cx="5" cy="5" r="1.8" fill="'+esc(f.color)+'"/></pattern>';
+  }
+  function fillShape(f,d,id,attrs) {
+    if(f.pattern==='solid')return '<path data-kind="fill" '+attrs+' d="'+d+'" fill="'+esc(f.color)+'" fill-opacity="'+f.opacity+'" stroke="none"/>';
+    return '<defs>'+fillPattern(id,f)+'</defs><path data-kind="fill" data-pattern="'+f.pattern+'" '+attrs+' d="'+d+'" fill="url(#'+id+')" opacity="'+f.opacity+'" stroke="none"/>';
+  }
+  // 曲线填色：沿曲线采样点，再在饱和边界（图外）封口，裁剪后即为曲线与绘图区上/下边之间的区域。
+  function curveFills(c,view,xMap,yMap,prefix,only) {
+    const out=[];
+    c.groups.forEach((g,i)=>{
+      if(only!==undefined&&only!==i)return;
+      for(const kind of ['orbit','distribution']){
+        const s=g[kind];if(!s.show||!s.fill.show)continue;
+        const r=mappedPoints(g,view,xMap,yMap,kind==='orbit'), pts=r.points;if(pts.length<2)continue;
+        const edge=s.fill.side==='below'?r.lowPx:r.highPx;
+        out.push(fillShape(s.fill,pointsD(pts)+' L '+pts[pts.length-1][0].toFixed(3)+' '+edge.toFixed(3)+' L '+pts[0][0].toFixed(3)+' '+edge.toFixed(3)+' Z',prefix+'g'+i+kind[0],'data-group="'+i+'" data-of="'+kind+'"'));
+      }
+    });
+    return out.join('');
+  }
+  function fail(message) { throw new Error(message); }
+  function shape(value, keys, path) {
+    if (!value || typeof value !== 'object' || Array.isArray(value) || Object.getPrototypeOf(value) !== Object.prototype) fail(path+' 必须为普通对象');
+    const actual = Object.keys(value);
+    if (actual.length !== keys.length || actual.some(k => !keys.includes(k)) || keys.some(k => !Object.hasOwn(value,k))) fail(path+' 字段缺失或存在未知字段');
+  }
+  function number(value, path, min = -Number.MAX_VALUE, max = Number.MAX_VALUE) {
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < min || value > max) fail(path+' 必须为范围内的有限数字');
+  }
+  function text(value, path, max, multiline=false) {
+    if (typeof value !== 'string' || value.length > max || /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f\ufffe\uffff\u2028\u2029]/.test(value) || (!multiline && value.includes('\n'))) fail(path+' 必须是合法'+(multiline?'':'单行')+'文本，最多 '+max+' 字符');
+    if (multiline && (value.split('\n').length>8 || value.split('\n').some(line=>line.length>60))) fail(path+' 最多 8 行，每行最多 60 字符');
+    // for...of 保留合法代理对；孤立代理项不能写入 XML 1.0。
+    for (const ch of value) { const cp=ch.codePointAt(0); if (cp>=0xd800 && cp<=0xdfff) fail(path+' 含不合法的 Unicode 字符'); }
+  }
+  function parameters(g) {
+    const p = g.Lf + Math.atanh(g.Delta);
+    return {p, logYf:Math.log(g.Yf), logIh:Math.log(g.sigma)-Math.log(SIGMA0)+Math.log(g.Yf)+p};
+  }
+  const FILL_KEYS=['show','color','opacity','side','pattern'];
+  function validateFill(f,path) {
+    shape(f,FILL_KEYS,path+' 填色');
+    if (typeof f.show !== 'boolean') fail(path+'：填色开关必须为布尔值');
+    if (typeof f.color !== 'string' || !/^#[0-9a-f]{6}$/i.test(f.color)) fail(path+'：填色颜色不合法');
+    number(f.opacity,path+' 填色透明度',0,1);
+    if (!['below','above'].includes(f.side)) fail(path+'：填充侧仅支持 below/above');
+    if (!FILL_PATTERNS.includes(f.pattern)) fail(path+'：花纹类型不合法');
+  }
+  function validateStyle(s,path) {
+    shape(s,['show','color','width','dash','fill'],path);
+    if (typeof s.show !== 'boolean' || typeof s.color !== 'string' || !/^#[0-9a-f]{6}$/i.test(s.color)) fail(path+'：曲线开关或颜色不合法');
+    number(s.width,path+' 线宽',.25,12); if (!['solid','dash','dot'].includes(s.dash)) fail(path+'：线型不合法');
+    validateFill(s.fill,path);
+  }
+  function validate(c) {
+    shape(c,V6_KEYS,'配置');
+    if (c.version !== 6) fail('不支持的配置版本');
+    number(c.legendFontSize,'图例字号',8,32);
+    if(!['normal','dual','small'].includes(c.layout))fail('未知排版模式');
+    number(c.panelHeight,'小图每格高度',120,1000);if(!Number.isInteger(c.panelHeight))fail('小图高度必须为整数');
+    if(!Array.isArray(c.boundaries)||c.boundaries.length>20)fail('界线必须为数组，最多 20 条');
+    c.boundaries.forEach((line,i)=>{const p='界线 '+(i+1);shape(line,['expression','style'],p);parseLine(line.expression);validateStyle(line.style,p+' 样式');});
+    if(!Array.isArray(c.annotations)||c.annotations.length>MAX_ANNOTATIONS)fail('标注必须为数组，最多 '+MAX_ANNOTATIONS+' 条');
+    c.annotations.forEach((a,i)=>{const p='标注 '+(i+1);shape(a,ANNOTATION_KEYS,p);if(typeof a.show!=='boolean')fail(p+'：显示开关必须为布尔值');number(a.x,p+' x',-1e12,1e12);number(a.y,p+' y',-1e12,1e12);if(!['left','right'].includes(a.side))fail(p+'：引出方向仅支持 left/right');number(a.radius,p+' 点半径',.5,24);number(a.fontSize,p+' 主字号',8,48);number(a.secondaryFontSize,p+' 副字号',8,48);text(a.primary,p+' 主文字',480,true);text(a.secondary,p+' 副文字',480,true);if(!['linear','log'].includes(a.panel))fail(p+'：所属图仅支持 linear/log');});
+    text(c.title,'主标题',80); text(c.subtitle,'副标题',100);
+    number(c.width,'绘图区宽',300,2400); number(c.height,'绘图区高',200,1800);
+    if (!Number.isInteger(c.width) || !Number.isInteger(c.height)) fail('绘图区尺寸必须为整数');
+    if (!['linear','log'].includes(c.mode)) fail('未知纵轴模式');
+    for (const k of ['xMin','xMax','yMin','yMax','logYMin','logYMax']) number(c[k],k,-1e12,1e12);
+    for (const axis of ['x','y']) {
+      const a=c[axis+'Min'], b=c[axis+'Max'];
+      if (!(b>a) || b-a < 1e-12*Math.max(1,Math.abs(a),Math.abs(b))) fail(axis+' 轴范围必须递增，且跨度不能小于数值尺度的 10⁻¹²');
+    }
+    if (!(c.logYMax>c.logYMin) || c.logYMax-c.logYMin < 1e-12*Math.max(1,Math.abs(c.logYMin),Math.abs(c.logYMax))) fail('对数纵轴范围必须递增，且跨度不能小于数值尺度的 10⁻¹²');
+    // 双图左轴恒为线性，负下限没有表征量含义；单图沿用原规则。
+    if ((c.layout==='dual' || c.mode==='linear') && c.yMin<0) fail('线性纵轴下限不能为负');
+    for (const k of ['grid','legend','peaks','baseline']) if (typeof c[k] !== 'boolean') fail(k+' 必须为布尔值');
+    if (!Array.isArray(c.groups) || c.groups.length > MAX_GROUPS) fail('谱组必须为数组，最多 '+MAX_GROUPS+' 组');
+    c.groups.forEach((g,i) => {
+      const path='组 '+(i+1); shape(g,['name','Lf','Yf','Delta','sigma','distribution','orbit'],path); text(g.name,path+' 名称',40);
+      for (const k of ['Lf','Yf','Delta','sigma']) number(g[k],path+' '+k);
+      if (!(g.Delta>-1 && g.Delta<1)) fail(path+'：Delta 必须严格位于 (−1,1)');
+      if (!(g.sigma>0 && g.Yf>0)) fail(path+'：sigma 与 Yf 必须大于 0');
+      for (const side of [-1,1]) { const w=g.sigma*(1+side*g.Delta); if (!(w>0) || !Number.isFinite(w)) fail(path+'：有效侧宽超出浮点数范围'); }
+      const m=parameters(g); if (!Number.isFinite(m.p) || !Number.isFinite(m.logIh)) fail(path+'：派生峰位或 ln(Ih) 超出数值范围');
+      for (const k of ['distribution','orbit']) validateStyle(g[k],path+' '+k);
+    });
+    return c;
+  }
+  // 图例行高与样线、参数行位置都按图例字号等比缩放（原设计以 12px 为基准，行高 42）。
+  function legendRow(c) { return 42*c.legendFontSize/12; }
+  function legendHeight(c) { return c.legend?Math.ceil(c.groups.length/2)*legendRow(c):0; }
+  // 画幅 = 绘图区（单个坐标轴）+ 自动边距。边距常量：标题区 140、底部刻度与轴标签 85，
+  // 左 72 / 右 36 留给纵轴刻度，双图两图之间的缝为 108。
+  const MARGIN={left:72,right:36,top:140,bottom:85,gap:108}, LEADER_PAD=24, LEADER_GAP=10;
+  // 末尾的空行不可见，不参与排版，避免多按的回车撑大画布或取消居中。
+  function lines(value) { const out=value===''?[]:value.split('\n'); while(out.length&&out[out.length-1].trim()==='')out.pop(); return out; }
+  // 引出文字块：主文字在线上、副文字在线下，均可多行；宽度按字号估算。
+  function annotationBlock(a) {
+    const P=lines(a.primary), S=lines(a.secondary), widest=(arr,size)=>Math.max(0,...arr.map(textUnits))*size;
+    // 没有副文字时主文字与引出线竖直居中，写在线端之后，并留出 LEADER_GAP 的间距。
+    const centered=P.length>0&&S.length===0, pHeight=P.length*a.fontSize*1.3;
+    return {P,S,centered,width:Math.max(widest(P,a.fontSize),widest(S,a.secondaryFontSize))+(centered?LEADER_GAP:0),pHeight,sHeight:S.length*a.secondaryFontSize*1.3,above:centered?pHeight/2:pHeight+LEADER_GAP,below:centered?pHeight/2:S.length*a.secondaryFontSize*1.3+LEADER_GAP};
+  }
+  // 引出文字写在绘图区外：按所属图与方向统计左右两侧各需额外留白。
+  // 上下只补文字块实际超出绘图区上下边的部分；点在框内时文字块按点的纵向位置计算，
+  // 框外的点按最近的框边计算，避免极端坐标把画布无限拉长。
+  function annotationExtra(c,panel) {
+    const out={left:0,right:0,top:0,bottom:0}, log=c.layout==='dual'?panel==='log':false;
+    const yMin=log?c.logYMin:c.yMin, yMax=log?c.logYMax:c.yMax;
+    for(const a of c.annotations){
+      if(!a.show||(panel!==undefined&&a.panel!==panel))continue;
+      const b=annotationBlock(a), fromTop=Math.min(c.height,Math.max(0,(yMax-a.y)/(yMax-yMin)*c.height));
+      out[a.side]=Math.max(out[a.side],b.width+LEADER_PAD);
+      out.top=Math.max(out.top,b.above-fromTop);
+      out.bottom=Math.max(out.bottom,b.below-(c.height-fromTop));
+    }
+    return out;
+  }
+  // 唯一的画幅布局来源：返回画布尺寸与各绘图区（frame）。width/height 是单个坐标轴的绘图区尺寸。
+  function layoutOf(c) {
+    const dual=c.layout==='dual', panels=dual?['linear','log']:[undefined], extra=panels.map(p=>annotationExtra(c,p)), frames=[];
+    // 底部留白放在绘图区与轴标签之间，避免副文字压到刻度文字和图例。
+    const bottomExtra=Math.max(...extra.map(e=>e.bottom));
+    const top=MARGIN.top+Math.max(...extra.map(e=>e.top)), bottom=top+c.height, canvasBottom=bottom+bottomExtra+MARGIN.bottom+legendHeight(c);
+    let x=MARGIN.left+extra[0].left;
+    panels.forEach((p,i)=>{
+      if(i>0)x+=extra[i-1].right+MARGIN.gap+extra[i].left;
+      const mode=dual?p:c.mode, log=dual&&p==='log';
+      frames.push({panel:dual?mode:undefined,mode,left:x,right:x+c.width,top,bottom,yMin:log?c.logYMin:c.yMin,yMax:log?c.logYMax:c.yMax,clipId:dual?'plotClip'+(i+1):'plotClip'});
+      x+=c.width;
+    });
+    const width=Math.ceil(x+extra[extra.length-1].right+MARGIN.right), height=Math.ceil(canvasBottom);
+    return {width,height,bottomExtra,frames};
+  }
+  function logDistribution(g,u) {
+    const m=parameters(g), d=u-m.p;
+    if (d===0) return m.logYf;
+    const w=g.sigma*(1-g.Delta*Math.sign(d));
+    const z=d/w;
+    return m.logYf-.5*z*z;
+  }
+  function logOrbit(g,u) { const m=parameters(g); return m.logYf+(m.p-u); }
+  function fmt(v) { if (v===0) return '0'; if (Math.abs(v)>=1e5 || Math.abs(v)<1e-3) return v.toExponential(3); return Number(v.toPrecision(6)).toString(); }
+  function expLabel(log) {
+    if (log>-700 && log<700) return fmt(Math.exp(log));
+    const exponent=Math.floor(log/Math.LN10);
+    if (Math.abs(exponent)>1e15) return 'exp('+fmt(log)+')';
+    return fmt(Math.exp(log-exponent*Math.LN10))+'e'+exponent;
+  }
+  function tickValues(a,b) { const span=b-a, raw=span/7, base=10**Math.floor(Math.log10(raw)); const step=([1,2,2.5,5,10].find(v=>v*base>=raw)||10)*base; const start=Math.ceil(a/step); const out=[]; for(let i=0;i<20;i++){const v=(start+i)*step;if(v>b+span*1e-10)break;out.push(Math.abs(v)<step*1e-10?0:v);} return out; }
+  function textUnits(value) { return [...String(value)].reduce((n,ch)=>n+(/[\u0000-\u00ff]/.test(ch)?.63:1),0); }
+  // 引出线统一延伸到绘图区外：斜线到框边，框外再留一段水平线，文字写在水平线上下。
+  function annotationMarkup(c,frame) {
+    const xMap=u=>frame.left+(u-c.xMin)/(c.xMax-c.xMin)*(frame.right-frame.left);
+    const yMap=v=>frame.bottom-(v-frame.yMin)/(frame.yMax-frame.yMin)*(frame.bottom-frame.top);
+    return c.annotations.map((a,i)=>({a,i})).filter(({a})=>a.show&&(frame.panel===undefined||a.panel===frame.panel)).map(({a,i})=>{
+      const b=annotationBlock(a), dir=a.side==='left'?-1:1, px=xMap(a.x), py=yMap(a.y);
+      const edge=dir<0?frame.left:frame.right, hx=edge+dir*LEADER_PAD, anchor=dir>0?'start':'end';
+      const tx=b.centered?hx+dir*LEADER_GAP:hx;
+      const tspans=(arr,size)=>arr.map((line,n)=>'<tspan x="'+tx+'" dy="'+(n?size*1.3:0)+'">'+esc(line)+'</tspan>').join('');
+      // 居中时首行基线用 central 对齐，多行整体以引出线为中心上移半个行距块。
+      const primary=!b.P.length?'':b.centered
+        ?'<text x="'+tx+'" y="'+(py-(b.P.length-1)*a.fontSize*1.3/2)+'" dominant-baseline="central" text-anchor="'+anchor+'" font-size="'+a.fontSize+'" fill="#000000">'+tspans(b.P,a.fontSize)+'</text>'
+        :'<text x="'+tx+'" y="'+(py-LEADER_GAP-b.pHeight+a.fontSize)+'" text-anchor="'+anchor+'" font-size="'+a.fontSize+'" fill="#000000">'+tspans(b.P,a.fontSize)+'</text>';
+      const secondary=b.S.length?'<text x="'+hx+'" y="'+(py+LEADER_GAP+a.secondaryFontSize)+'" text-anchor="'+anchor+'" font-size="'+a.secondaryFontSize+'" fill="#808080">'+tspans(b.S,a.secondaryFontSize)+'</text>':'';
+      return '<g data-kind="annotation" data-annotation="'+i+'"><circle cx="'+px+'" cy="'+py+'" r="'+a.radius+'" fill="#000000"/><path d="M '+px+' '+py+' L '+edge+' '+py+' H '+hx+'" fill="none" stroke="#000000" stroke-width="1.75"/>'+primary+secondary+'</g>';
+    }).join('');
+  }
+  function lineStyle(s) { return 'stroke="'+esc(s.color)+'" stroke-width="'+s.width+'"'+(s.dash==='dash'?' stroke-dasharray="9 6"':s.dash==='dot'?' stroke-dasharray="2 5"':''); }
+  function sampleXs(g,c,orbit=false) {
+    const {p,logYf}=parameters(g), xs=[c.xMin,c.xMax], span=c.xMax-c.xMin;
+    const add=x=>{if(Number.isFinite(x)&&x>=c.xMin&&x<=c.xMax)xs.push(x);};
+    const n=Math.min(1800,Math.max(500,c.width)); for(let i=1;i<n;i++)add(c.xMin+span*i/n);
+    add(p);
+    const bounds=c.mode==='log'?[c.yMin+LOG100,c.yMax+LOG100]:[c.yMin>0?Math.log(c.yMin):logYf-50,Math.log(c.yMax)];
+    if (orbit) { for(const b of bounds)add(p+(logYf-b)); }
+    else for(const side of [-1,1]) {
+      const w=g.sigma*(1-g.Delta*side);
+      for(let i=1;i<=200;i++)add(p+side*w*(i/20));
+      for(const b of bounds){const t=2*(logYf-b);if(t>=0)add(p+side*w*Math.sqrt(t));}
+    }
+    return [...new Set(xs)].sort((a,b)=>a-b);
+  }
+  // view 携带该面板自己的 mode、纵轴范围与宽度，双图两侧因此各自采样。
+  function pointsD(points) { return points.map((pt,i)=>(i?'L':'M')+pt[0].toFixed(3)+' '+pt[1].toFixed(3)).join(' '); }
+  function mappedPath(g,view,xMap,yMap,isOrbit) { return pointsD(mappedPoints(g,view,xMap,yMap,isOrbit).points); }
+  // 返回曲线采样点以及饱和上下界的像素位置（在绘图区外），供填色封口。
+  function mappedPoints(g,view,xMap,yMap,isOrbit) {
+    const xs=sampleXs(g,view,isOrbit), fn=isOrbit?logOrbit:logDistribution, span=view.yMax-view.yMin, low=view.yMin-4*span, high=view.yMax+4*span;
+    const logMap=logY=>{let v;if(view.mode==='log')v=logY-LOG100;else v=logY>Math.log(high)?high:Math.exp(logY);return yMap(Math.max(low,Math.min(high,v)));};
+    const points=[]; let previous=null;
+    function refine(a,b,ya,yb,depth) {
+      const mid=a+(b-a)/2, ym=logMap(fn(g,mid));
+      if(depth<9 && mid!==a && mid!==b && xMap(b)-xMap(a)>.15 && Math.abs(ym-(ya+yb)/2)>.5) {refine(a,mid,ya,ym,depth+1);refine(mid,b,ym,yb,depth+1);}
+      else points.push([xMap(b),yb]);
+    }
+    for(const x of xs){const y=logMap(fn(g,x));if(previous)refine(previous[0],x,previous[1],y,0);else points.push([xMap(x),y]);previous=[x,y];}
+    return {points,lowPx:yMap(low),highPx:yMap(high)};
+  }
+  function renderSVG(c) {
+    c=migrate(c);
+    if(c.layout==='small'){
+      const size=dimensions(c),groups=c.groups.filter(g=>g.distribution.show||g.orbit.show);
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="'+size.width+'" height="'+size.height+'" viewBox="0 0 '+size.width+' '+size.height+'" style="max-width:100%;margin:0 auto" role="img" aria-label="无文字竖排谱组图"><rect width="100%" height="100%" fill="white"/>'+groups.map((g,i)=>'<g data-panel="'+i+'" transform="translate(0 '+(16+i*(c.panelHeight+16))+')">'+renderSmall(c,g,i)+'</g>').join('')+'</svg>';
+    }
+    return renderCanvas(c);
+  }
+  function renderSmall(c,g,panel) {
+    const W=c.panelHeight,left=24,right=W-24,top=24,bottom=W-24,pw=right-left,ph=bottom-top;
+    const xMap=u=>left+(u-c.xMin)/(c.xMax-c.xMin)*pw, yMap=v=>bottom-(v-c.yMin)/(c.yMax-c.yMin)*ph;
+    const axisX=xMap(Math.max(c.xMin,Math.min(c.xMax,0))),axisY=yMap(Math.max(c.yMin,Math.min(c.yMax,0)));
+    const id='smallClip'+panel,base=c.mode==='log'?0:100,view={...c,width:pw};
+    const parts=['<defs><clipPath id="'+id+'"><rect x="'+left+'" y="'+top+'" width="'+pw+'" height="'+ph+'"/></clipPath></defs><g clip-path="url(#'+id+')">'];
+    if(c.baseline&&base>=c.yMin&&base<=c.yMax)parts.push('<path data-kind="baseline" d="M '+left+' '+yMap(base)+' H '+right+'" stroke="#9B91A5" stroke-width="1.3" stroke-dasharray="5 5"/>');
+    // 填色在线条之下：先界线填色，再本格谱组的曲线填色。
+    parts.push(boundaryFills(c,xMap,yMap,'s'+panel+'-'),curveFills(c,view,xMap,yMap,'s'+panel+'-',c.groups.indexOf(g)));
+    parts.push(boundaryPaths(c,xMap,yMap));
+    for(const kind of ['orbit','distribution'])if(g[kind].show)parts.push('<path data-kind="'+kind+'" d="'+mappedPath(g,view,xMap,yMap,kind==='orbit')+'" fill="none" '+lineStyle(g[kind])+' stroke-linejoin="round"/>');
+    parts.push('</g><path data-kind="axes" d="M '+axisX+' '+top+' V '+bottom+' M '+left+' '+axisY+' H '+right+'" fill="none" stroke="#111111" stroke-width="3.5"/>');
+    return parts.join('');
+  }
+  // 普通图与双图共用：标题、图例跨整幅，每个 frame 独立绘制坐标、曲线与引出标注。
+  function renderCanvas(c) {
+    const L=layoutOf(c), W=L.width, H=L.height, dual=c.layout==='dual';
+    const axisName=f=>f.mode==='log'?'表征级量ln(y/100)':'表征量 y';
+    const out=['<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" aria-labelledby="plotTitle plotDesc">','<title id="plotTitle">'+esc(c.title)+'</title><desc id="plotDesc">休谟分布及本征轨道；'+(dual?'左图线性表征量 y，右图表征级量 ln(y/100)':'纵轴 '+axisName(L.frames[0]))+'。Ih 采用现象学定义。左右图各自独立，不互相换算。</desc>','<rect width="100%" height="100%" fill="white"/>','<defs>'+L.frames.map(f=>'<clipPath id="'+f.clipId+'"><rect x="'+f.left+'" y="'+f.top+'" width="'+(f.right-f.left)+'" height="'+(f.bottom-f.top)+'"/></clipPath>').join('')+'</defs>','<g font-family="Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" fill="#161016">'];
+    const fontSize=(s,max)=>Math.min(max,(W-90)/Math.max(1,textUnits(s)));
+    // 绘制顺序有意固定：淡紫副标题在先，主标题白色描边叠压其上半部。
+    out.push('<text data-layer="subtitle" x="'+W/2+'" y="82" text-anchor="middle" font-size="'+fontSize(c.subtitle,23)+'" fill="#B49CE0">'+esc(c.subtitle)+'</text>');
+    out.push('<text data-layer="title" x="'+W/2+'" y="70" text-anchor="middle" font-size="'+fontSize(c.title,48)+'" font-weight="900" stroke="white" stroke-width="7" stroke-linejoin="round" paint-order="stroke fill">'+esc(c.title)+'</text>');
+    L.frames.forEach(f=>{
+      const xMap=u=>f.left+(u-c.xMin)/(c.xMax-c.xMin)*(f.right-f.left), yMap=v=>f.bottom-(v-f.yMin)/(f.yMax-f.yMin)*(f.bottom-f.top);
+      const axisX=xMap(Math.max(c.xMin,Math.min(c.xMax,0))),axisY=yMap(Math.max(f.yMin,Math.min(f.yMax,0)));
+      const xt=tickValues(c.xMin,c.xMax),yt=tickValues(f.yMin,f.yMax),view={...c,mode:f.mode,yMin:f.yMin,yMax:f.yMax,width:f.right-f.left};
+      out.push('<g data-panel="'+f.mode+'" clip-path="url(#'+f.clipId+')">');
+      if(c.grid){out.push('<g stroke="#E1E1E1" stroke-width="1">');for(const x of xt)out.push('<path d="M '+xMap(x)+' '+f.top+' V '+f.bottom+'"/>');for(const y of yt)out.push('<path d="M '+f.left+' '+yMap(y)+' H '+f.right+'"/>');out.push('</g>');}
+      const baseline=f.mode==='log'?0:100;
+      if(c.baseline && baseline>=f.yMin && baseline<=f.yMax)out.push('<path data-kind="baseline" d="M '+f.left+' '+yMap(baseline)+' H '+f.right+'" stroke="#9B91A5" stroke-width="1.3" stroke-dasharray="5 5"/>');
+      // 填色在网格之上、所有线条之下；按面板加前缀，双图两侧的花纹 id 不冲突。
+      out.push(boundaryFills(view,xMap,yMap,f.mode+'-'),curveFills(c,view,xMap,yMap,f.mode+'-'));
+      out.push(boundaryPaths(view,xMap,yMap));
+      c.groups.forEach((g,i)=>{if(g.orbit.show)out.push('<path data-kind="orbit" data-group="'+i+'" d="'+mappedPath(g,view,xMap,yMap,true)+'" fill="none" '+lineStyle(g.orbit)+' stroke-linejoin="round"/>');});
+      c.groups.forEach((g,i)=>{if(g.distribution.show)out.push('<path data-kind="distribution" data-group="'+i+'" d="'+mappedPath(g,view,xMap,yMap,false)+'" fill="none" '+lineStyle(g.distribution)+' stroke-linejoin="round"/>');});
+      if(c.peaks)c.groups.forEach((g,i)=>{const m=parameters(g), v=f.mode==='log'?m.logYf-LOG100:g.Yf;if((g.distribution.show||g.orbit.show)&&m.p>=c.xMin&&m.p<=c.xMax&&v>=f.yMin&&v<=f.yMax){out.push('<circle data-kind="peak" data-group="'+i+'" cx="'+xMap(m.p)+'" cy="'+yMap(v)+'" r="4" fill="'+esc(g.distribution.show?g.distribution.color:g.orbit.color)+'" stroke="white" stroke-width="1.5"><title>'+esc(g.name)+' · p='+esc(fmt(m.p))+' · Ih='+esc(expLabel(m.logIh))+'</title></circle>');}});
+      out.push('</g><path data-kind="axes" d="M '+axisX+' '+f.top+' V '+f.bottom+' M '+f.left+' '+axisY+' H '+f.right+'" fill="none" stroke="#111111" stroke-width="3.5"/>');
+      out.push(annotationMarkup(c,f));
+      for(const x of xt)out.push('<path d="M '+xMap(x)+' '+axisY+' v 6" stroke="#111" stroke-width="1.5"/><text x="'+xMap(x)+'" y="'+(axisY+24)+'" text-anchor="middle" font-size="12">'+esc(fmt(x))+'</text>');
+      for(const y of yt)out.push('<path d="M '+(axisX-6)+' '+yMap(y)+' h 6" stroke="#111" stroke-width="1.5"/><text x="'+(axisX-12)+'" y="'+(yMap(y)+4)+'" text-anchor="end" font-size="12">'+esc(fmt(y))+'</text>');
+      out.push('<text x="'+((f.left+f.right)/2)+'" y="'+(f.bottom+L.bottomExtra+52)+'" text-anchor="middle" font-size="15">实际谱坐标 u</text>');
+      out.push('<text x="'+f.left+'" y="'+(f.top-22)+'" font-size="14">'+esc(axisName(f))+'</text>');
+      if(c.baseline&&baseline>=f.yMin&&baseline<=f.yMax)out.push('<text x="'+(f.right-5)+'" y="'+Math.max(f.top+14,yMap(baseline)-7)+'" text-anchor="end" font-size="11" fill="#80718C">基准 y=100</text>');
+    });
+    if(c.legend){
+      const span=L.frames[L.frames.length-1].right-L.frames[0].left;
+      c.groups.forEach((g,i)=>{
+        const fs=c.legendFontSize,k=fs/12,x=L.frames[0].left+(i%2)*span/2,y=L.frames[0].bottom+L.bottomExtra+64+fs*4/3+Math.floor(i/2)*legendRow(c),m=parameters(g),maxChars=Math.max(6,Math.floor((span/2-68)/fs));
+        const name=[...g.name].length>maxChars?[...g.name].slice(0,maxChars-1).join('')+'…':g.name;
+        out.push('<g data-kind="legend"><title>'+esc(g.name)+'</title>');
+        if(g.distribution.show)out.push('<path d="M '+x+' '+(y-fs/3)+' h 24" '+lineStyle(g.distribution)+'/>');
+        if(g.orbit.show)out.push('<path d="M '+(x+29)+' '+(y-fs/3)+' h 24" '+lineStyle(g.orbit)+'/>');
+        out.push('<text x="'+(x+61)+'" y="'+y+'" font-size="'+fs+'">'+esc(name)+(g.distribution.show||g.orbit.show?'':'（隐藏）')+'</text>');
+        const metric='p='+fmt(m.p)+' · Ih='+expLabel(m.logIh);
+        out.push('<text x="'+x+'" y="'+(y+16*k)+'" font-size="'+Math.min(fs*11/12,(span/2-12)/(metric.length*.62))+'" fill="#756582">'+esc(metric)+'</text></g>');
+      });
+    }
+    out.push('</g></svg>'); return out.join('');
+  }
+  let current=defaults(), valid=true, pngBusy=false;
+  const rootFields=['title','subtitle','width','height','mode','xMin','xMax','yMin','yMax','logYMin','logYMax','grid','legend','legendFontSize','peaks','baseline','layout','panelHeight'];
+  const numericFields=['width','height','xMin','xMax','yMin','yMax','logYMin','logYMax','panelHeight','legendFontSize'];
+  function readNumber(el) { return el.value.trim()===''?NaN:Number(el.value); }
+  function readForm() {
+    const c={version:6};
+    const readStyle=(get,k)=>({show:get(k+'.show').checked,color:get(k+'.color').value,width:readNumber(get(k+'.width')),dash:get(k+'.dash').value,fill:{show:get(k+'.fill.show').checked,color:get(k+'.fill.color').value,opacity:readNumber(get(k+'.fill.opacity')),side:get(k+'.fill.side').value,pattern:get(k+'.fill.pattern').value}});
+    c.boundaries=[...$('boundaries').querySelectorAll('.boundary')].map(el=>{const get=k=>el.querySelector('[data-field="'+k+'"]');return {expression:get('expression').value,style:readStyle(get,'line')};});
+    c.annotations=[...$('annotations').querySelectorAll('.annotation')].map(el=>{const get=k=>el.querySelector('[data-field="'+k+'"]');const a={show:get('show').checked};for(const k of ['x','y','radius','fontSize','secondaryFontSize'])a[k]=readNumber(get(k));a.side=get('side').value;a.panel=get('panel').value;a.primary=get('primary').value;a.secondary=get('secondary').value;return a;});
+    for(const k of rootFields){const el=$(k);c[k]=el.type==='checkbox'?el.checked:numericFields.includes(k)?readNumber(el):el.value;}
+    // 单图对数模式只有一套纵轴，独立对数范围与它保持一致，切到双图时直接沿用。
+    if(c.layout!=='dual'&&c.mode==='log'){c.logYMin=c.yMin;c.logYMax=c.yMax;}
+    c.groups=[...$('groups').querySelectorAll('.group')].map(el=>{
+      const get=k=>el.querySelector('[data-field="'+k+'"]');
+      const g={name:get('name').value}; for(const k of ['Lf','Yf','Delta','sigma'])g[k]=readNumber(get(k));
+      for(const k of ['distribution','orbit'])g[k]=readStyle(get,k);
+      return g;
+    });return validate(c);
+  }
+  function styleFields(s,key,title,vertical=false) { return '<label class="check"><input type="checkbox" data-field="'+key+'.show" '+(s.show?'checked':'')+'>'+title+'</label><div class="style-fields"><label>颜色<input aria-label="'+title+'颜色" type="color" data-field="'+key+'.color" value="'+esc(s.color)+'"></label><label>线宽<input type="number" min="0.25" max="12" step="0.25" data-field="'+key+'.width" value="'+s.width+'"></label><label>线型<select data-field="'+key+'.dash">'+[['solid','实线'],['dash','虚线'],['dot','点线']].map(([v,n])=>'<option value="'+v+'" '+(s.dash===v?'selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+fillFields(s.fill,key,title,vertical); }
+  const PATTERN_NAMES=[['solid','纯色'],['slash','右斜线 /'],['backslash','左斜线 \\'],['cross','斜网格'],['grid','竖网格'],['dots','点阵']];
+  function isVertical(expression){try{return parseLine(expression).vertical;}catch(e){return false;}}
+  function sideNames(vertical){return vertical?[['below','左侧'],['above','右侧']]:[['below','下侧'],['above','上侧']];}
+  function fillFields(f,key,title,vertical) {
+    const k=key+'.fill.';
+    return '<label class="check"><input type="checkbox" data-field="'+k+'show" '+(f.show?'checked':'')+'>'+title+'一侧填色</label><div class="fill-fields"><label>填色<input aria-label="'+title+'填色颜色" type="color" data-field="'+k+'color" value="'+esc(f.color)+'"></label><label>不透明度<input type="number" min="0" max="1" step="0.05" data-field="'+k+'opacity" value="'+f.opacity+'"></label><label>填充侧<select data-field="'+k+'side" data-fill-side>'+sideNames(vertical).map(([v,n])=>'<option value="'+v+'" '+(f.side===v?'selected':'')+'>'+n+'</option>').join('')+'</select></label><label>花纹<select data-field="'+k+'pattern">'+PATTERN_NAMES.map(([v,n])=>'<option value="'+v+'" '+(f.pattern===v?'selected':'')+'>'+n+'</option>').join('')+'</select></label></div>';
+  }
+  // 竖直线 x=常数 的填充侧显示为左/右；表达式无效时保持当前文字。
+  function syncFillSides(){document.querySelectorAll('.boundary').forEach(el=>{let vertical;try{vertical=parseLine(el.querySelector('[data-field="expression"]').value).vertical;}catch(e){return;}const sel=el.querySelector('[data-fill-side]');sideNames(vertical).forEach(([v,n],i)=>{if(sel.options[i])sel.options[i].textContent=n;});});}
+  function annotationFields(a) {
+    const num=(k,label,step)=>'<label>'+label+'<input type="number" step="'+step+'" data-field="'+k+'" value="'+a[k]+'"></label>';
+    return '<label class="check"><input type="checkbox" data-field="show" '+(a.show?'checked':'')+'>显示</label><div class="fields">'+num('x','点 x（显示坐标）','any')+num('y','点 y（显示坐标）','any')+'<label>引出方向<select data-field="side"><option value="right" '+(a.side==='right'?'selected':'')+'>向右 · 框外</option><option value="left" '+(a.side==='left'?'selected':'')+'>向左 · 框外</option></select></label><label>所属图<select data-field="panel"><option value="linear" '+(a.panel==='linear'?'selected':'')+'>左 · 线性</option><option value="log" '+(a.panel==='log'?'selected':'')+'>右 · 对数</option></select></label>'+num('radius','点半径 / px','0.5')+num('fontSize','主文字字号 / px','1')+num('secondaryFontSize','副文字字号 / px','1')+'</div><label>主文字（线上，黑色，可多行）<textarea rows="2" maxlength="480" data-field="primary">'+esc(a.primary)+'</textarea></label><label>副文字（线下，灰色，可多行）<textarea rows="2" maxlength="480" data-field="secondary">'+esc(a.secondary)+'</textarea></label>';
+  }
+  function fillForm(c) {
+    $('boundaries').innerHTML=c.boundaries.map((line,i)=>'<div class="boundary group"><div class="row between"><h3>界线 '+(i+1)+'</h3><button type="button" data-delete-boundary="'+i+'">删除界线</button></div><label>表达式<input data-field="expression" maxlength="100" value="'+esc(line.expression)+'"></label>'+styleFields(line.style,'line','界线',isVertical(line.expression))+'</div>').join('');
+    $('annotations').innerHTML=c.annotations.map((a,i)=>'<div class="annotation group"><div class="row between"><h3>标注 '+(i+1)+'</h3><span class="row"><button type="button" data-pick-annotation="'+i+'">图中选点</button><button type="button" data-delete-annotation="'+i+'">删除标注</button></span></div>'+annotationFields(a)+'</div>').join('');
+    syncAnnotationControls();
+    for(const k of rootFields){const el=$(k);if(el.type==='checkbox')el.checked=c[k];else el.value=c[k];}
+    syncLayoutControls();
+    $('groups').innerHTML=c.groups.map((g,i)=>'<div class="group" data-index="'+i+'"><div class="row between"><h3>谱组 '+(i+1)+'</h3><button type="button" data-delete="'+i+'" aria-label="删除谱组 '+(i+1)+'">删除</button></div><label>名称<input maxlength="40" data-field="name" value="'+esc(g.name)+'"></label><div class="fields">'+[['Lf','Lf · 中心参数'],['Yf','Yf · 峰高'],['Delta','Delta · 偏态'],['sigma','sigma · 宽度尺度']].map(([k,n])=>'<label>'+n+'<input type="number" step="any" data-field="'+k+'" value="'+g[k]+'"></label>').join('')+'</div>'+styleFields(g.distribution,'distribution','分布')+styleFields(g.orbit,'orbit','本征轨道')+'<div class="metrics" data-metrics="'+i+'"></div></div>').join('');
+  }
+  function status(message,error=false){$('status').textContent=message;$('status').className=error?'error':'';}
+  function buttons(){for(const k of ['exportSVG','exportPNG','exportJSON'])$(k).disabled=!valid||(k==='exportPNG'&&pngBusy);}
+  function persist(){if(!$('remember').checked)return;try{localStorage.setItem(STORAGE_KEY,JSON.stringify(current));$('storageStatus').textContent='有效配置已保存在当前浏览器。';}catch(e){$('storageStatus').textContent='本地保存失败（不影响绘图/导出）：'+e.message;}}
+  function apply(c,fill=false,message='画面已更新。') {
+    if(fill||c.layout==='small')cancelPick();
+    validate(c); const svg=renderSVG(c); current=clone(c);valid=true;
+    if(fill)fillForm(c);$('preview').innerHTML=svg;
+    c.groups.forEach((g,i)=>{const m=parameters(g),el=$('groups').querySelector('[data-metrics="'+i+'"]');if(el)el.textContent='p = '+fmt(m.p)+'   Ih = '+expLabel(m.logIh);});
+    const count=c.groups.filter(g=>g.distribution.show||g.orbit.show).length;
+    const smallNote=c.annotations.length?' 已有标注仅保留，小图不绘制。':'';
+    const size=dimensions(c);
+    const canvasStatus=c.layout==='dual'?'双图：左线性 · 右对数 · 画布 '+size.width+' × '+size.height+' px':(c.layout==='normal'?message+'画布 '+size.width+' × '+size.height+' px':message);
+    status(c.layout==='small'?(count?'小图：'+count+' 格 · '+size.width+' × '+size.height+' px'+smallNote:'小图暂无可见谱组，请添加谱组或开启分布／轨道；当前导出为空白画幅。'+smallNote):canvasStatus);buttons();persist();syncLayoutControls();syncAnnotationControls();lastLayout=c.layout;
+  }
+  function syncAnnotationControls(){const small=$('layout').value==='small',dual=$('layout').value==='dual';$('addAnnotation').disabled=small;$('addAnnotation').title=small?'小图不绘制标注，已保留现有标注':'';document.querySelectorAll('[data-pick-annotation]').forEach(btn=>{btn.disabled=small;});document.querySelectorAll('[data-field="panel"]').forEach(el=>{el.closest('label').hidden=!dual;el.disabled=!dual;});}
+  function syncLayoutControls(){const dual=$('layout').value==='dual';$('mode').disabled=dual;$('dualLogRange').hidden=!dual;$('yMinLabel').textContent=dual?'左图纵轴最小值':'纵轴最小值';$('yMaxLabel').textContent=dual?'左图纵轴最大值':'纵轴最大值';$('axisHint').textContent=dual?'双图左轴固定为线性表征量 y，右轴为表征级量 ln(y/100)，两者独立、不互相换算。':'纵轴范围以当前模式的数值为准；切换模式会换为常用范围。可用“适配可见峰高”重设纵轴。';}
+  function update(){syncFillSides();try{apply(readForm());}catch(e){valid=false;status(e.message+'\n已保留上一张有效图；修正输入后才能导出。',true);buttons();syncLayoutControls();syncAnnotationControls();}}
+  function guarded(action){try{return action();}catch(e){status(e.message,true);}}
+  function saveBlob(blob,filename){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+  function svgBlob(c){return new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n',renderSVG(c)],{type:'image/svg+xml;charset=utf-8'});}
+  async function rasterize(c,scale) {
+    c=migrate(c);if(![1,2,3].includes(scale))fail('PNG 倍率仅支持 1/2/3');
+    const size=dimensions(c),pixelWidth=size.width*scale,pixelHeight=size.height*scale;
+    if(pixelWidth>16384||pixelHeight>16384||pixelWidth*pixelHeight>40000000)fail('PNG 画布过大（单边最多 16384 px、总计 4000 万像素）；请减小倍率、每格高度或组数，或导出 SVG');
+    const url=URL.createObjectURL(svgBlob(c));
+    try {
+      const img=new Image();
+      await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{img.onload=img.onerror=null;reject(new Error('SVG 图像解码超时'));},15000);img.onload=()=>{clearTimeout(timer);resolve();};img.onerror=()=>{clearTimeout(timer);reject(new Error('浏览器无法解码 SVG 图像'));};img.src=url;});
+      const canvas=document.createElement('canvas');canvas.width=pixelWidth;canvas.height=pixelHeight;
+      const ctx=canvas.getContext('2d');if(!ctx)fail('浏览器无法建立 PNG 画布');
+      ctx.fillStyle='white';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      return await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('PNG 编码超时')),30000);try{canvas.toBlob(blob=>{clearTimeout(timer);if(blob)resolve(blob);else reject(new Error('PNG 编码失败，可能是画布内存不足'));},'image/png');}catch(e){clearTimeout(timer);reject(e);}});
+    } finally {URL.revokeObjectURL(url);}
+  }
+  async function exportPNG(){if(pngBusy)return;try{const c=readForm(),scale=Number($('pngScale').value);pngBusy=true;buttons();status('正在生成 PNG…');const blob=await rasterize(c,scale);saveBlob(blob,'休谟图-'+scale+'x.png');status('PNG '+scale+'× 已生成并交给浏览器下载（'+dimensions(c).width*scale+' × '+dimensions(c).height*scale+'）。');}catch(e){status('PNG 导出失败：'+e.message,true);}finally{pngBusy=false;buttons();}}
+  function importText(textValue){if(typeof textValue!=='string'||textValue.length>1024*1024)fail('配置文件不能超过 1 MiB');const c=migrate(JSON.parse(textValue));apply(c,true,'配置导入成功。');return clone(c);}
+  $('controls').addEventListener('input',e=>{
+    if(e.target.id==='layout')prepareLayout(lastLayout);
+    if(e.target.id==='mode')applyModeRange();
+    if(e.target.closest('.group')||rootFields.includes(e.target.id))update();
+  });
+  $('addBoundary').addEventListener('click',()=>guarded(()=>{const c=readForm();if(c.boundaries.length>=20)fail('最多 20 条界线');c.boundaries.push({expression:'y=0',style:style('#777777','dash')});apply(c,true);}));
+  $('boundaries').addEventListener('click',e=>{const b=e.target.closest('[data-delete-boundary]');if(b){b.closest('.boundary').remove();update();}});
+  let picking=null, lastLayout='normal';
+  function cancelPick(){if(picking===null)return;picking=null;document.querySelectorAll('.anno-pick').forEach(el=>el.classList.remove('anno-pick'));if(valid)status('已取消图中选点。');}
+  // 进入双图时把当前对数范围挪到右轴，左轴回到线性；离开双图且当前为对数模式时再写回。
+  function prepareLayout(prev){const next=$('layout').value;if(next===prev)return;if(next==='dual'&&$('mode').value==='log'){$('logYMin').value=$('yMin').value;$('logYMax').value=$('yMax').value;$('yMin').value=0;$('yMax').value=160;$('mode').value='linear';document.querySelectorAll('[data-field="panel"]').forEach(el=>{el.value='log';});}if(prev==='dual'&&$('mode').value==='log'){$('yMin').value=$('logYMin').value;$('yMax').value=$('logYMax').value;}}
+  // 单图切模式时复用已存的对数范围，避免来回切换丢掉手工设置。
+  function applyModeRange(){const log=$('mode').value==='log';if(log){$('yMin').value=$('logYMin').value;$('yMax').value=$('logYMax').value;}else{$('yMin').value=0;$('yMax').value=160;}}
+  function plotFrames(c){return layoutOf(c).frames;}
+  function plotFrame(c){return plotFrames(c)[0];}
+  function dataPoint(svg,event,c=current){const point=svg.createSVGPoint();point.x=event.clientX;point.y=event.clientY;const local=point.matrixTransform(svg.getScreenCTM().inverse());const frames=plotFrames(c),hit=frames.find(f=>local.x>=f.left&&local.x<=f.right&&local.y>=f.top&&local.y<=f.bottom)||frames[0];return {x:c.xMin+(local.x-hit.left)/(hit.right-hit.left)*(c.xMax-c.xMin),y:hit.yMax-(local.y-hit.top)/(hit.bottom-hit.top)*(hit.yMax-hit.yMin),panel:hit.panel===undefined?c.mode:hit.panel,inside:hit!==frames[0]||(local.x>=hit.left&&local.x<=hit.right&&local.y>=hit.top&&local.y<=hit.bottom)};}
+  // 选点吸附：屏幕距离不超过 SNAP_PX 时改用最近可见组的顶点 (p, Yf)，只写入一次坐标，不与谱组绑定。
+  const SNAP_PX=12;
+  function snapPeak(c,point,scale=1,threshold=SNAP_PX){const f=plotFrames(c).find(fr=>(fr.panel===undefined?c.mode:fr.panel)===point.panel);if(!f)return null;const sx=(f.right-f.left)/(c.xMax-c.xMin)*scale,sy=(f.bottom-f.top)/(f.yMax-f.yMin)*scale;let best=null;c.groups.forEach((g,i)=>{if(!g.distribution.show&&!g.orbit.show)return;const m=parameters(g),y=f.mode==='log'?m.logYf-LOG100:g.Yf;if(m.p<c.xMin||m.p>c.xMax||y<f.yMin||y>f.yMax)return;const d=Math.hypot((m.p-point.x)*sx,(y-point.y)*sy);if(d<=threshold&&(!best||d<best.d))best={x:m.p,y,group:i,name:g.name,d};});return best;}
+  $('annotations').addEventListener('click',e=>{
+    const del=e.target.closest('[data-delete-annotation]'),pick=e.target.closest('[data-pick-annotation]');
+    if(del){cancelPick();del.closest('.annotation').remove();update();return;}
+    if(!pick)return;
+    if(current.layout==='small'){status('小图不绘制标注，不能在图中选点；已有标注会保留。',true);return;}
+    const index=Number(pick.dataset.pickAnnotation);
+    if(picking===index){cancelPick();return;}
+    cancelPick();picking=index;pick.classList.add('anno-pick');status('选点中：点击'+(current.layout==='dual'?'左图或右图':'绘图区')+'设置标注 '+(index+1)+'；距曲线顶点 '+SNAP_PX+'px 内自动吸附，按住 Alt 点击不吸附；绘图区外无效，再次点击按钮或按 Escape 取消。');
+  });
+  $('addAnnotation').addEventListener('click',()=>guarded(()=>{if($('layout').value==='small')fail('小图不绘制标注，不能新增；已有标注会保留，切回后显示');const c=readForm();if(c.annotations.length>=MAX_ANNOTATIONS)fail('最多 '+MAX_ANNOTATIONS+' 条标注');c.annotations.push(annotationDefaults(c.mode,c.layout));apply(c,true);}));
+  $('preview').addEventListener('click',e=>{
+    if(picking===null)return;
+    try{
+      const svg=e.target.closest('svg'),card=$('annotations').querySelectorAll('.annotation')[picking];
+      if(!svg||!card||current.layout==='small'||!svg.getScreenCTM()){cancelPick();return;}
+      const point=dataPoint(svg,e),index=picking;
+      if(!point.inside){status('请点在绘图区内；选点仍未结束，可按 Escape 取消。',true);return;}
+      const snap=e.altKey?null:snapPeak(current,point,svg.getScreenCTM().a);
+      cancelPick();
+      card.querySelector('[data-field="x"]').value=String(snap?snap.x:point.x);card.querySelector('[data-field="y"]').value=String(snap?snap.y:point.y);card.querySelector('[data-field="panel"]').value=point.panel;update();
+      if(valid)status('已用绘图区点击设置标注 '+(index+1)+' 的显示坐标'+(current.layout==='dual'?'（'+(point.panel==='log'?'右图':'左图')+'）':'')+(snap?'，已吸附到「'+snap.name+'」顶点':'')+'。');
+    }catch(err){cancelPick();status('无法换算点击位置：'+err.message,true);}
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')cancelPick();});
+  $('groups').addEventListener('click',e=>{const b=e.target.closest('[data-delete]');if(b)guarded(()=>{const c=readForm();c.groups.splice(Number(b.dataset.delete),1);apply(c,true);});});
+  $('addGroup').addEventListener('click',()=>guarded(()=>{const c=readForm();if(c.groups.length>=MAX_GROUPS)fail('最多 20 组');c.groups.push(preset($('preset').value));apply(c,true);}));
+  $('fitY').addEventListener('click',()=>guarded(()=>{const c=readForm(),visible=c.groups.filter(g=>g.distribution.show||g.orbit.show);const peak=Math.max(...visible.map(g=>g.Yf),100);const logMax=Math.min(1e12,Math.max(1,Math.log(peak)-LOG100+1));if(c.layout==='dual'){c.yMin=0;c.yMax=Math.min(1e12,peak*1.2);c.logYMax=logMax;c.logYMin=Math.min(-6,logMax-8);}else if(c.mode==='log'){c.yMax=logMax;c.yMin=Math.min(-6,c.yMax-8);c.logYMin=c.yMin;c.logYMax=c.yMax;}else{c.yMin=0;c.yMax=Math.min(1e12,peak*1.2);}apply(c,true,'已适配可见组的峰高（不追踪轨道端部；线性上限最多 10¹²）。');}));
+  $('exportSVG').addEventListener('click',()=>guarded(()=>{saveBlob(svgBlob(readForm()),'休谟图.svg');status('SVG 已生成并交给浏览器下载。');}));
+  $('exportPNG').addEventListener('click',exportPNG);
+  $('exportJSON').addEventListener('click',()=>guarded(()=>{saveBlob(new Blob([JSON.stringify(readForm(),null,2)],{type:'application/json;charset=utf-8'}),'休谟制图器配置.json');status('JSON 配置已交给浏览器下载。');}));
+  $('importJSON').addEventListener('click',()=>$('jsonFile').click());
+  $('jsonFile').addEventListener('change',async e=>{const file=e.target.files[0];try{if(!file)return;if(file.size>1024*1024)fail('配置文件不能超过 1 MiB');importText(await file.text());}catch(err){status('导入失败，原配置未变：'+err.message,true);}finally{e.target.value='';}});
+  $('remember').addEventListener('change',()=>{if($('remember').checked)persist();else{try{localStorage.removeItem(STORAGE_KEY);$('storageStatus').textContent='已关闭记忆并移除此工具保存的配置。';}catch(e){$('storageStatus').textContent='关闭了本次自动保存，但无法移除旧存储：'+e.message;}}});
+  $('reset').addEventListener('click',()=>apply(defaults(),true,'已恢复基准现实。'));
+  // 本机回归入口：数学与渲染函数无网络；getConfig 返回副本，importText 会校验并替换画面。
+  window.HumePlot=Object.freeze({SIGMA0,defaults,preset,annotationDefaults,validate,migrate,parseLine,dimensions,layoutOf,plotFrames,plotFrame,annotationBlock,snapPeak,parameters,logDistribution,logOrbit,sampleXs,textUnits,dataPoint,renderSVG,rasterize,importText,getConfig:()=>clone(current)});
+  let initial=defaults(),notice='基准现实已就绪。所有计算与导出均在本机完成。';
+  try{const saved=localStorage.getItem(STORAGE_KEY);if(saved){initial=migrate(JSON.parse(saved));$('remember').checked=true;notice='已恢复此前主动保存的本地配置。';}}catch(e){$('storageStatus').textContent='本地存储不可用或旧配置无效，已使用默认值：'+e.message;}
+  apply(initial,true,notice);
+})();
+</script>
+</body>
+</html>
