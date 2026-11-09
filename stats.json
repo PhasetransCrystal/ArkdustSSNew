@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "counter_version": 1,
-  "source_commit": "feb61c8ef59dc294f4dfed1f3e61239c9bda9af2",
+  "source_commit": "9a4f7593adf3737a4b3d1fb4add8bc13e78477ef",
   "source_mode": "tracked-working-tree",
   "working_tree_modified": false,
   "counting_policy": {
@@ -31,16 +31,16 @@
     "exclude": []
   },
   "totals": {
-    "characters": 66890,
-    "raw_characters": 71564,
+    "characters": 66892,
+    "raw_characters": 71575,
     "files": 9
   },
   "tree": {
     "type": "directory",
     "name": "世界观文档",
     "path": "",
-    "characters": 66890,
-    "raw_characters": 71564,
+    "characters": 66892,
+    "raw_characters": 71575,
     "files": 9,
     "children": [
       {
@@ -56,16 +56,16 @@
         "type": "directory",
         "name": "设定",
         "path": "设定",
-        "characters": 55636,
-        "raw_characters": 59745,
+        "characters": 55638,
+        "raw_characters": 59756,
         "files": 8,
         "children": [
           {
             "type": "directory",
             "name": "休谟与深度",
             "path": "设定/休谟与深度",
-            "characters": 30342,
-            "raw_characters": 32492,
+            "characters": 30344,
+            "raw_characters": 32503,
             "files": 4,
             "children": [
               {
@@ -81,10 +81,10 @@
                 "type": "file",
                 "name": "本体与休谟学概论：休谟，深度，现实.md",
                 "path": "设定/休谟与深度/本体与休谟学概论：休谟，深度，现实.md",
-                "characters": 17820,
-                "raw_characters": 19366,
+                "characters": 17822,
+                "raw_characters": 19377,
                 "files": 1,
-                "sha256": "136e23cfa9bff5f52d59548dbaccf6a97c49a7d33eb62fce71d6857b8277083a"
+                "sha256": "80174fb34262dd1ffd1a172a1c1ec2dcf3299dbf8bcebc5522c7d2d32000e3e4"
               },
               {
                 "type": "file",
