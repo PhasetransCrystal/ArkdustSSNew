@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "counter_version": 1,
-  "source_commit": "c3233dd0900bcff80e13974df9da8919bbf676cd",
+  "source_commit": "feb61c8ef59dc294f4dfed1f3e61239c9bda9af2",
   "source_mode": "tracked-working-tree",
   "working_tree_modified": false,
   "counting_policy": {
@@ -31,16 +31,16 @@
     "exclude": []
   },
   "totals": {
-    "characters": 58299,
-    "raw_characters": 62573,
+    "characters": 66890,
+    "raw_characters": 71564,
     "files": 9
   },
   "tree": {
     "type": "directory",
     "name": "世界观文档",
     "path": "",
-    "characters": 58299,
-    "raw_characters": 62573,
+    "characters": 66890,
+    "raw_characters": 71564,
     "files": 9,
     "children": [
       {
@@ -56,35 +56,35 @@
         "type": "directory",
         "name": "设定",
         "path": "设定",
-        "characters": 47732,
-        "raw_characters": 51470,
+        "characters": 55636,
+        "raw_characters": 59745,
         "files": 8,
         "children": [
           {
             "type": "directory",
             "name": "休谟与深度",
             "path": "设定/休谟与深度",
-            "characters": 22615,
-            "raw_characters": 24404,
+            "characters": 30342,
+            "raw_characters": 32492,
             "files": 4,
             "children": [
               {
                 "type": "file",
                 "name": "异常学.md",
                 "path": "设定/休谟与深度/异常学.md",
-                "characters": 3699,
-                "raw_characters": 3902,
+                "characters": 9655,
+                "raw_characters": 10101,
                 "files": 1,
-                "sha256": "5efc0625899867a6dacb470d209830a6f826dc40236edd55d35b7d90af0d7128"
+                "sha256": "a9d925bc943c896861b0013ab13363ae57f286dceee9d8e12baf0fb24238ace7"
               },
               {
                 "type": "file",
                 "name": "本体与休谟学概论：休谟，深度，现实.md",
                 "path": "设定/休谟与深度/本体与休谟学概论：休谟，深度，现实.md",
-                "characters": 16049,
-                "raw_characters": 17477,
+                "characters": 17820,
+                "raw_characters": 19366,
                 "files": 1,
-                "sha256": "71237ecfbcaba4cbe358ecc63fe4002d38b3bf603652dd3f7420fe25f5685b5d"
+                "sha256": "136e23cfa9bff5f52d59548dbaccf6a97c49a7d33eb62fce71d6857b8277083a"
               },
               {
                 "type": "file",
@@ -138,18 +138,18 @@
             "type": "directory",
             "name": "内我",
             "path": "设定/内我",
-            "characters": 19638,
-            "raw_characters": 21206,
+            "characters": 19815,
+            "raw_characters": 21393,
             "files": 1,
             "children": [
               {
                 "type": "file",
                 "name": "灵魂-再旅者.md",
                 "path": "设定/内我/灵魂-再旅者.md",
-                "characters": 19638,
-                "raw_characters": 21206,
+                "characters": 19815,
+                "raw_characters": 21393,
                 "files": 1,
-                "sha256": "6ea25f86d7c5c69598460b203ea330e5593bc247fe64022ee7355274a09f11b6"
+                "sha256": "ef13594e09dd8a2f0b09983776e4d478a754bed0b24223d03ac48b1f4bf3a940"
               }
             ]
           },
@@ -168,10 +168,10 @@
         "type": "file",
         "name": "Exile.md",
         "path": "Exile.md",
-        "characters": 10567,
-        "raw_characters": 11103,
+        "characters": 11254,
+        "raw_characters": 11819,
         "files": 1,
-        "sha256": "71ee21ae3ddc33207eb88df6333719774475b13a9d9e894a2d4a69a262faf1d3"
+        "sha256": "67e2cfff2f237e2af7023896421b2459f7b9557945d3c730e8ce5bb075037b66"
       }
     ]
   }
