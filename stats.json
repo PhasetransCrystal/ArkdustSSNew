@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "counter_version": 1,
-  "source_commit": "9a4f7593adf3737a4b3d1fb4add8bc13e78477ef",
+  "source_commit": "783bdcac87a7a9b1d55b733821453ffce1196295",
   "source_mode": "tracked-working-tree",
   "working_tree_modified": false,
   "counting_policy": {
@@ -31,17 +31,17 @@
     "exclude": []
   },
   "totals": {
-    "characters": 66892,
-    "raw_characters": 71575,
-    "files": 9
+    "characters": 76464,
+    "raw_characters": 82966,
+    "files": 10
   },
   "tree": {
     "type": "directory",
     "name": "世界观文档",
     "path": "",
-    "characters": 66892,
-    "raw_characters": 71575,
-    "files": 9,
+    "characters": 76464,
+    "raw_characters": 82966,
+    "files": 10,
     "children": [
       {
         "type": "directory",
@@ -56,35 +56,44 @@
         "type": "directory",
         "name": "设定",
         "path": "设定",
-        "characters": 55638,
-        "raw_characters": 59756,
-        "files": 8,
+        "characters": 65210,
+        "raw_characters": 71147,
+        "files": 9,
         "children": [
           {
             "type": "directory",
             "name": "休谟与深度",
             "path": "设定/休谟与深度",
-            "characters": 30344,
-            "raw_characters": 32503,
-            "files": 4,
+            "characters": 39912,
+            "raw_characters": 43890,
+            "files": 5,
             "children": [
               {
                 "type": "file",
                 "name": "异常学.md",
                 "path": "设定/休谟与深度/异常学.md",
-                "characters": 9655,
-                "raw_characters": 10101,
+                "characters": 9649,
+                "raw_characters": 10095,
                 "files": 1,
-                "sha256": "a9d925bc943c896861b0013ab13363ae57f286dceee9d8e12baf0fb24238ace7"
+                "sha256": "9795a36e67e9d58a45a5c4cc050bf3ec6dc067e28dbe6196eb83306411458d0b"
+              },
+              {
+                "type": "file",
+                "name": "本体与休谟学工具.md",
+                "path": "设定/休谟与深度/本体与休谟学工具.md",
+                "characters": 11269,
+                "raw_characters": 13277,
+                "files": 1,
+                "sha256": "cb27328d2067a831c632214f519c3433845bb142630e57bcc1d02cafbd150c11"
               },
               {
                 "type": "file",
                 "name": "本体与休谟学概论：休谟，深度，现实.md",
                 "path": "设定/休谟与深度/本体与休谟学概论：休谟，深度，现实.md",
-                "characters": 17822,
-                "raw_characters": 19377,
+                "characters": 16120,
+                "raw_characters": 17484,
                 "files": 1,
-                "sha256": "80174fb34262dd1ffd1a172a1c1ec2dcf3299dbf8bcebc5522c7d2d32000e3e4"
+                "sha256": "e2507def2864abd9f2068128e2451f3a0f0137a75e85d72fa27de41b6de4af8e"
               },
               {
                 "type": "file",
@@ -99,10 +108,10 @@
                 "type": "file",
                 "name": "超域物理学.md",
                 "path": "设定/休谟与深度/超域物理学.md",
-                "characters": 2820,
-                "raw_characters": 2973,
+                "characters": 2827,
+                "raw_characters": 2982,
                 "files": 1,
-                "sha256": "d19adcca9d92ff92f79096d780a47b05b3400adb721e29bcf5eb3ef8224c7820"
+                "sha256": "7ba7ac72e9553670c14963e908a5908f10ba3ea70fbee6eb6e35b047b8279f89"
               }
             ]
           },
@@ -138,18 +147,18 @@
             "type": "directory",
             "name": "内我",
             "path": "设定/内我",
-            "characters": 19815,
-            "raw_characters": 21393,
+            "characters": 19819,
+            "raw_characters": 21397,
             "files": 1,
             "children": [
               {
                 "type": "file",
                 "name": "灵魂-再旅者.md",
                 "path": "设定/内我/灵魂-再旅者.md",
-                "characters": 19815,
-                "raw_characters": 21393,
+                "characters": 19819,
+                "raw_characters": 21397,
                 "files": 1,
-                "sha256": "ef13594e09dd8a2f0b09983776e4d478a754bed0b24223d03ac48b1f4bf3a940"
+                "sha256": "fa11f9c75dbbee598facc2ff6293956e1d9a18aff500f56604159ebd81f43104"
               }
             ]
           },
