@@ -1,0 +1,188 @@
+{
+  "meta": {
+    "name": "hume-chart-theme",
+    "version": 1,
+    "source_file": "tools/休谟制图器.html",
+    "note": "值均取自 renderCanvas / renderSmall 等 SVG 生成代码。src 为源文件行号。标注为 derived 的项是由代码公式推出，不是源码字面量。",
+    "not_read": "annotationExtra、legendHeight、fmt、preset 中除 baseline 外的谱组配色未读取，不在本主题内。"
+  },
+  "canvas": {
+    "background": { "value": "#ffffff", "svg": "<rect width=\"100%\" height=\"100%\" fill=\"white\"/>", "src": "L371, L349" },
+    "svg_attrs": "xmlns, width, height, viewBox=0 0 W H, role=img",
+    "default_plot_size": { "width": 960, "height": 480, "unit": "px，指绘图区本身，不含边距", "src": "L61" },
+    "margin": { "left": 72, "right": 36, "top": 140, "bottom": 85, "dual_gap": 108, "src": "L239", "note": "实际画布还会按标注与图例追加留白，见 layoutOf L265-278" },
+    "default_domain": { "xMin": -3, "xMax": 3, "yMin": 0, "yMax": 160, "src": "L61" },
+    "clip": "曲线、网格、填色放在 clipPath=绘图区矩形内；坐标轴、刻度、文字在 clip 之外。src L371, L380, L390"
+  },
+  "font": {
+    "family": "Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif",
+    "default_fill": "#161016",
+    "src": "L371（根 <g> 属性）",
+    "sizes_px": {
+      "title_max": 48,
+      "subtitle_max": 23,
+      "axis_title_x": 15,
+      "axis_title_y": 14,
+      "tick_label": 12,
+      "baseline_label": 11,
+      "legend": 16,
+      "legend_metric": "min(legend*11/12, 按列宽缩放)",
+      "annotation_primary": 32,
+      "annotation_secondary": 16
+    },
+    "title_autoshrink": "字号 = min(最大值, (W-90)/textUnits)；ASCII 字符按 0.63 宽计，其他按 1。src L372, L296"
+  },
+  "title": {
+    "title": {
+      "x": "W/2", "y": 70, "anchor": "middle", "size_max": 48, "weight": 900,
+      "fill": "#161016（继承）",
+      "halo": { "stroke": "#ffffff", "stroke_width": 7, "linejoin": "round", "paint_order": "stroke fill" },
+      "src": "L375"
+    },
+    "subtitle": {
+      "x": "W/2", "y": 82, "anchor": "middle", "size_max": 23, "fill": "#B49CE0",
+      "src": "L374",
+      "z_order": "先画副标题，再画带白描边的主标题，主标题压住副标题上半部。src L373"
+    }
+  },
+  "grid": {
+    "enabled_default": true,
+    "stroke": "#E1E1E1",
+    "width": 1,
+    "lines": "对每个刻度画贯穿绘图区的竖线与横线",
+    "src": "L381",
+    "small_layout": "不画网格（renderSmall 无此段）。src L353-366"
+  },
+  "ticks": {
+    "algorithm": "目标约 7 个间隔；step 取 base×[1,2,2.5,5,10] 中首个 ≥ span/7 的值；起点为 step 的整数倍；最多 20 个；接近 0 的值归零",
+    "src": "L295",
+    "mark": { "length": 6, "stroke": "#111", "width": 1.5, "src": "L392-393" },
+    "x_label": { "dy_from_axis": 24, "anchor": "middle", "size": 12, "src": "L392" },
+    "y_label": { "dx_from_axis": -12, "dy": 4, "anchor": "end", "size": 12, "src": "L393" },
+    "note": "刻度与标签跟随零轴位置 axisX/axisY，零点不在范围内时贴边（clamp）。src L378"
+  },
+  "axes": {
+    "color": "#111111",
+    "width": 3.5,
+    "shape": "一条竖轴 + 一条横轴，过 (0,0) 并夹在范围内，单 path，无箭头",
+    "fill": "none",
+    "src": "L390, L364"
+  },
+  "axis_titles": {
+    "x": { "text": "实际谱坐标 u", "x": "绘图区中心", "y": "bottom + bottomExtra + 52", "anchor": "middle", "size": 15, "src": "L394" },
+    "y": { "text_linear": "表征量 y", "text_log": "表征级量ln(y/100)", "x": "绘图区 left", "y": "top - 22", "anchor": "start", "size": 14, "src": "L395, L370" },
+    "note": "文字内容是休谟谱专用；复用到其他函数图时只沿用位置与字号，文本自行替换。"
+  },
+  "baseline": {
+    "enabled_default": true,
+    "color": "#9B91A5",
+    "width": 1.3,
+    "dasharray": "5 5",
+    "value": { "linear": 100, "log": 0 },
+    "label": { "text": "基准 y=100", "size": 11, "fill": "#80718C", "anchor": "end", "x": "right - 5", "y": "max(top+14, yMap(base)-7)", "src": "L396" },
+    "src": "L383, L359"
+  },
+  "curves": {
+    "default_width": 2.5,
+    "fill_attr": "none",
+    "linejoin": "round",
+    "dasharray": { "solid": null, "dash": "9 6", "dot": "2 5", "src": "L314" },
+    "primary": { "role": "distribution（分布）", "color": "#3A1466", "dash": "solid", "src": "L54" },
+    "secondary": { "role": "orbit（本征轨道）", "color": "#B49CE0", "dash": "dash", "src": "L54" },
+    "boundary_default": { "color": "#777777", "dash": "dash", "width": 2.5, "src": "L495, L52" },
+    "color_format": "必须是 #rrggbb 六位十六进制。src L188, L195",
+    "draw_order": "网格 → 基准线 → 界线填色 → 曲线填色 → 界线 → orbit 曲线 → distribution 曲线 → 峰值点 → 坐标轴 → 标注 → 刻度与文字。src L381-396",
+    "sampling": "x 采样 500 到 1800 点（按绘图宽度），再在斜率变化处递归细分到 <0.15px。derived，src L318, L337-343"
+  },
+  "fill": {
+    "default": { "show": false, "opacity": 0.25, "side": "below", "pattern": "solid", "color": "与所属线条同色" },
+    "src": "L51",
+    "solid": { "fill_opacity": "opacity", "stroke": "none", "src": "L148" },
+    "pattern": {
+      "tile": "10x10 userSpaceOnUse",
+      "stroke_width": 1.5,
+      "stroke": "填色色",
+      "line": "M 5 0 V 10",
+      "variants": {
+        "slash": "rotate(45)",
+        "backslash": "rotate(-45)",
+        "cross": "rotate(45) + 十字 M 5 0 V 10 M 0 5 H 10",
+        "grid": "不旋转 + 十字",
+        "dots": "圆 cx=5 cy=5 r=1.8，实心"
+      },
+      "applied_as": "path opacity=opacity，fill=url(#id)",
+      "src": "L139-149"
+    }
+  },
+  "peak_marker": {
+    "enabled_default": true,
+    "radius": 4,
+    "fill": "对应曲线色（distribution 优先，否则 orbit）",
+    "stroke": "#ffffff",
+    "stroke_width": 1.5,
+    "src": "L389"
+  },
+  "annotation": {
+    "dot": { "radius_default": 3.5, "fill": "#000000", "src": "L70, L311" },
+    "leader": { "stroke": "#000000", "width": 1.75, "path": "M 点 L 绘图框边缘 H 框外 24px", "pad_outside_frame": 24, "src": "L311, L239, L303" },
+    "primary_text": { "fill": "#000000", "size": 32, "position": "引出线上方；无副文字时垂直居中于引出线", "src": "L308-309, L70" },
+    "secondary_text": { "fill": "#808080", "size": 16, "position": "引出线下方", "src": "L310, L70" },
+    "line_height": 1.3,
+    "text_gap": 10,
+    "side": "left | right，文字一律在绘图框外",
+    "anchor": "right→start，left→end",
+    "limits": { "font_px": [8, 48], "radius_px": [0.5, 24], "text_max_chars": 480 },
+    "src_limits": "L208, L239, L246-247"
+  },
+  "legend": {
+    "enabled_default": true,
+    "layout": "两列，列宽 = 总跨度/2；位于 x 轴标题下方",
+    "row_height": "42 * fontSize / 12",
+    "first_row_y": "bottom + bottomExtra + 64 + fontSize*4/3",
+    "samples": [
+      { "of": "distribution", "x_offset": 0, "length": 24 },
+      { "of": "orbit", "x_offset": 29, "length": 24 }
+    ],
+    "sample_stroke": "与曲线样式相同（颜色、线宽、线型）",
+    "sample_y": "文字基线 - fontSize/3",
+    "name": { "x_offset": 61, "size": 16, "fill": "#161016（继承）", "truncate": "超过列宽时截断并加 …" },
+    "metric": { "fill": "#756582", "y_offset": "16 * fontSize/12", "size": "min(fontSize*11/12, (列宽-12)/(字符数*0.62))" },
+    "src": "L398-410, L235"
+  },
+  "small_layout": {
+    "purpose": "无文字竖排小图，每格一个正方形面板",
+    "panel_size_default": 240,
+    "panel_gap_and_outer_pad": 16,
+    "inner_margin": 24,
+    "canvas": "宽 = panelHeight；高 = n*panelHeight + (n+1)*16",
+    "contains": "基准线（#9B91A5，1.3，5 5）、填色、界线、曲线、坐标轴（#111111，3.5）",
+    "excludes": "标题、网格、刻度、刻度文字、轴标题、图例、标注、峰值点",
+    "aria_label": "无文字竖排谱组图",
+    "src": "L108, L347-349, L353-366"
+  },
+  "ui_chrome_reference": {
+    "note": "仅为工具页面外壳配色，不属于独立 SVG；需要做同风格页面时才参考。",
+    "ink": "#24182e",
+    "purple": "#3A1466",
+    "soft": "#B49CE0",
+    "line": "#ded8e5",
+    "page_bg": "#f4f1f7",
+    "preview_bg": "#e8e3ed",
+    "muted_text": "#80718c",
+    "src": "L8"
+  },
+  "palette": {
+    "brand_purple_dark": "#3A1466",
+    "brand_purple_light": "#B49CE0",
+    "ink_black": "#111111",
+    "text_default": "#161016",
+    "annotation_primary": "#000000",
+    "annotation_secondary": "#808080",
+    "grid_gray": "#E1E1E1",
+    "baseline_gray": "#9B91A5",
+    "baseline_label": "#80718C",
+    "legend_metric": "#756582",
+    "boundary_gray": "#777777",
+    "halo_white": "#ffffff"
+  }
+}
